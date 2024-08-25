@@ -6,6 +6,12 @@ This started as a cute "what if?":
 
 Because the board would need to fit into the chassis of a Nokia 3310 and because there are existing doodads that would be sitting alongside the board anyways, scope has crept to include connecting to these other thingamajigs.
 
+![3D render of front of adapter board](./front.jpg)
+![3D render of back of adapter board](./back.jpg)
+
+### Pin Assignment
+
+
 ### TODO
 #### Hardware
 - double-check display connection
