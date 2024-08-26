@@ -14,7 +14,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - Vibration: GP28
 - Buzzer: GP4
 - Keypad:
-	- Clear GP7
+	- Clear GP11
 	- 1 GP8
 	- 2 GP7
 	- 3 GP22
@@ -37,10 +37,22 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 	- 7 GND + cap
 	- 8 GP14 Reset
 
+### Sim card notes
+/¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+|io /\ clock
+|Vpp|| reset
+|gnd\/Vcc
+
+Vpp does not matter
+protocol is custom but simple and well enough documented
+but not easy going from zero to something that works here
+what tests can i do?
+probably needs to use pio
+so something to leave for last
+
 ### TODO
 #### Hardware
-- double-check display connection
-- use on-board 2350 instead of connected pico board.
+- use on-board 2350 instead of connected pico board.  an opportunity to reassign pins.  GP0+1 should be left available for debugging.  leave adc available for adc functions.
 - add pads for more buttons: up/down/select
 - sim card connection
 - power from battery
@@ -50,7 +62,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - add LEDs to lightup keypad and display
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
 
-### Software
+#### Software
 - USB numpad keyboard example
 - finish no_std RTTTL parsing library and release
 - use embedded_graphics for console display
@@ -61,5 +73,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - interface with optional pico-w to expose keypad as bluetooth keyboard (speaker for notifications)
 - read/write to sim card
 
-### Misc
+#### Misc
 - Come up with better name
+
+https://serdisplib.sourceforge.net/ser/pcd8544.html

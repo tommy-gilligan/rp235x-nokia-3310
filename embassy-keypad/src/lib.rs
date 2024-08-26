@@ -2,7 +2,7 @@
 use embassy_futures::select::{select4, Either4};
 use embedded_hal_async::digital::Wait;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum KeyPress {
     Select,
     Cancel,
@@ -73,6 +73,7 @@ pub struct Keypad<
     asterisk: AsteriskT,
     zero: ZeroT,
     hash: HashT,
+    latch: Option<KeyPress>
 }
 
 impl<
@@ -129,8 +130,54 @@ where
     ZeroT: Wait,
     HashT: Wait,
 {
+    pub fn new(select: SelectT, cancel: CancelT, up: UpT, down: DownT, one: OneT, two: TwoT, three: ThreeT, four: FourT, five: FiveT, six: SixT, seven: SevenT, eight: EightT, nine: NineT, asterisk: AsteriskT, zero: ZeroT, hash: HashT,) -> Self {
+	Self {
+	    select,
+	    cancel,
+	    up,
+	    down,
+	    one,
+	    two,
+	    three,
+	    four,
+	    five,
+	    six,
+	    seven,
+	    eight,
+	    nine,
+	    asterisk,
+	    zero,
+	    hash,
+        latch: None
+	}
+    }
+
+    // TODO: should debounce in addition to latching
+    async fn clear_latch(&mut self) {
+        match self.latch {
+            Some(KeyPress::Select) => { self.select.wait_for_low().await; },
+            Some(KeyPress::Cancel) => { self.cancel.wait_for_low().await; },
+            Some(KeyPress::Up) => { self.up.wait_for_low().await; },
+            Some(KeyPress::Down) => { self.down.wait_for_low().await; },
+            Some(KeyPress::One) => { self.one.wait_for_low().await; },
+            Some(KeyPress::Two) => { self.two.wait_for_low().await; },
+            Some(KeyPress::Three) => { self.three.wait_for_low().await; },
+            Some(KeyPress::Four) => { self.four.wait_for_low().await; },
+            Some(KeyPress::Five) => { self.five.wait_for_low().await; },
+            Some(KeyPress::Six) => { self.six.wait_for_low().await; },
+            Some(KeyPress::Seven) => { self.seven.wait_for_low().await; },
+            Some(KeyPress::Eight) => { self.eight.wait_for_low().await; },
+            Some(KeyPress::Nine) => { self.nine.wait_for_low().await; },
+            Some(KeyPress::Asterisk) => { self.asterisk.wait_for_low().await; },
+            Some(KeyPress::Zero) => { self.zero.wait_for_low().await; },
+            Some(KeyPress::Hash) => { self.hash.wait_for_low().await; },
+            None => ()
+        }
+    }
+
     pub async fn key_down(&mut self) -> KeyPress {
-        match select4(
+        self.clear_latch().await;
+        let new_latch_value = match select4(
             select4(
                 self.hash.wait_for_high(),
                 self.zero.wait_for_high(),
@@ -174,16 +221,15 @@ where
             Either4::Fourth(Either4::Second(_)) => KeyPress::Cancel,
             Either4::Fourth(Either4::Third(_)) => KeyPress::Up,
             Either4::Fourth(Either4::Fourth(_)) => KeyPress::Down,
-        }
+        };
+        self.latch = Some(new_latch_value);
+        new_latch_value
     }
 }
 
 #[cfg(test)]
 mod test {
-    
-
     use super::{KeyPress, Keypad};
-    
     use embedded_hal_mock::eh1::digital::{Mock as PinMock, State as PinState, Transaction as PinTransaction};
 
     // TODO: improve test. Probably dependent on e-h-m improvements
@@ -225,6 +271,7 @@ mod test {
             asterisk: asterisk.clone(),
             zero: zero.clone(),
             hash: hash.clone(),
+            latch: None
         };
 
         assert_eq!(keypad.key_down().await, KeyPress::Hash);
