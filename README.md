@@ -11,6 +11,31 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 
 ### Pin Assignment
 
+- Vibration: GP28
+- Buzzer: GP4
+- Keypad:
+	- Clear GP7
+	- 1 GP8
+	- 2 GP7
+	- 3 GP22
+	- 4 GP6
+	- 5 GP5
+	- 6 GP27
+	- 7 GP2
+	- 8 GP3
+	- 9 GP21
+	- * GP0
+	- 0 GP1
+	- # GP26 
+- Display:
+	- 1 3.3V
+	- 2 GP18 SPI0 SCK
+	- 3 GP19 SPI0 TX
+	- 4 GP15 D/C
+	- 5 GP17 SPI0 CSn
+	- 6 GND
+	- 7 GND + cap
+	- 8 GP14 Reset
 
 ### TODO
 #### Hardware
@@ -26,6 +51,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
 
 ### Software
+- USB numpad keyboard example
 - finish no_std RTTTL parsing library and release
 - use embedded_graphics for console display
 - create example that plays RTTTL (and writes it to screen)
