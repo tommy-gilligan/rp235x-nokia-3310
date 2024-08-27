@@ -38,11 +38,11 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 	- 8 GP14 Reset
 
 ### Sim card notes
-/¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
-|io /\ clock
-|Vpp|| reset
-|gnd\/Vcc
-
+/¯¯¯¯¯¯¯¯¯¯¯|
+|io /\ clock|
+|Vpp|| reset|
+|gnd\/Vcc   |
+¯¯¯¯¯¯¯¯¯¯¯¯¯
 Vpp does not matter
 protocol is custom but simple and well enough documented
 but not easy going from zero to something that works here
@@ -63,7 +63,7 @@ so something to leave for last
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
 
 #### Software
-- USB numpad keyboard example
+- stop using local ie. path dependencies for embassy
 - finish no_std RTTTL parsing library and release
 - use embedded_graphics for console display
 - create example that plays RTTTL (and writes it to screen)
