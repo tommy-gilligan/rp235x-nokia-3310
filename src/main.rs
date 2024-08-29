@@ -1,33 +1,87 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicBool, Ordering};
+use core::{
+    sync::atomic::{AtomicBool, Ordering},
+    cell::RefCell
+};
 use defmt::*;
+use display_interface_spi::SPIInterface;
 use embassy_executor::Spawner;
-use embassy_rp::gpio;
-use embassy_time::Timer;
-use gpio::{Input, Level, Output, Pull};
-use {defmt_rtt as _, panic_probe as _};
 use embassy_futures::join::join;
-use embassy_rp::bind_interrupts;
-use embassy_rp::peripherals::USB;
-use embassy_rp::usb::{Driver, InterruptHandler};
-use embassy_usb::class::hid::{HidReaderWriter, ReportId, RequestHandler, State};
-use embassy_usb::control::OutResponse;
-use embassy_usb::{Builder, Config, Handler};
+use embassy_rp::{bind_interrupts, gpio, peripherals::USB, spi::Spi, spi, spi::Blocking, usb::{Driver, InterruptHandler}};
+use embassy_time::Timer;
+use embassy_usb::{
+    class::hid::{HidReaderWriter, ReportId, RequestHandler, State},
+    control::OutResponse,
+    Builder, Config, Handler
+};
+use gpio::{Input, Level, Output, Pull};
+use pcd8544::Driver as PCD8544;
 use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
+use {defmt_rtt as _, panic_probe as _};
+use embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig;
+use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
+use embassy_embedded_hal::shared_bus::blocking::spi::SpiDevice;
+use embedded_hal_1::spi::{Operation, SpiDevice as OtherSpiDevice};
+use embassy_time::Delay;
+use embedded_graphics::primitives::PrimitiveStyle;
+use embedded_graphics::pixelcolor::BinaryColor;
+use embedded_graphics::primitives::Circle;
+use embedded_graphics::prelude::Point;
+use embedded_graphics::prelude::Primitive;
+use embedded_graphics::Drawable;
 
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => InterruptHandler<USB>;
 });
 
+const LCDWIDTH: usize = 84;  ///< LCD is 84 pixels wide
+const LCDHEIGHT: usize = 48; ///< 48 pixels high
+const PCD8544_POWERDOWN: u8 = 0x04; ///< Function set, Power down mode
+const PCD8544_ENTRYMODE: u8 = 0x02; ///< Function set, Entry mode
+const PCD8544_EXTENDEDINSTRUCTION: u8 = 0x01;
+const PCD8544_DISPLAYBLANK: u8 = 0x0;    ///< Display control, blank
+const PCD8544_DISPLAYNORMAL: u8 = 0x4;   ///< Display control, normal mode
+const PCD8544_DISPLAYALLON: u8 = 0x1;    ///< Display control, all segments on
+const PCD8544_DISPLAYINVERTED: u8 = 0x5; ///< Display control, inverse mode
+const PCD8544_FUNCTIONSET: u8 = 0x20; ///< Basic instruction set
+const PCD8544_DISPLAYCONTROL: u8 = 0x08; ///< Basic instruction set - Set display configuration
+const PCD8544_SETYADDR: u8 = 0x40; ///< Basic instruction set - Set Y address of RAM, 0 <= Y <= 5
+const PCD8544_SETXADDR: u8 = 0x80; ///< Basic instruction set - Set X address of RAM, 0 <= X <= 83
+const PCD8544_SETTEMP: u8 = 0x04; ///< Extended instruction set - Set temperature coefficient
+const PCD8544_SETBIAS: u8 = 0x10; ///< Extended instruction set - Set bias system
+const PCD8544_SETVOP: u8 = 0x80; ///< Extended instruction set - Write Vop to register
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    // Create the driver, from the HAL.
+
+    let mut config = spi::Config::default();
+    config.frequency = 4_000_000;
+    let mut spi = Spi::new_blocking(p.SPI0, p.PIN_18, p.PIN_19, p.PIN_16, config.clone());
+    let spi_bus: Mutex<NoopRawMutex, _> = Mutex::new(RefCell::new(spi));
+
+    let mut display_spi = SpiDeviceWithConfig::new(
+        &spi_bus,
+        Output::new(p.PIN_17, Level::High),
+        config.clone()
+    );
+    let mut pcd8544 = PCD8544::new(
+        SPIInterface::new(display_spi, Output::new(p.PIN_20, Level::High)),
+        Output::new(p.PIN_21, Level::High)
+    );
+    pcd8544.init(&mut Delay);
+
+    let thin_stroke = PrimitiveStyle::with_stroke(BinaryColor::On, 2);
+    Circle::new(Point::new(20, 20), 10)
+        .into_styled(thin_stroke)
+        .draw(&mut pcd8544).unwrap();
+
+    pcd8544.flush();
+
     let driver = Driver::new(p.USB, Irqs);
 
-    // Create embassy-usb Config
     let mut config = Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HID keyboard example");
@@ -35,11 +89,8 @@ async fn main(_spawner: Spawner) {
     config.max_power = 100;
     config.max_packet_size_0 = 64;
 
-    // Create embassy-usb DeviceBuilder using the driver and config.
-    // It needs some buffers for building the descriptors.
     let mut config_descriptor = [0; 256];
     let mut bos_descriptor = [0; 256];
-    // You can also add a Microsoft OS descriptor.
     let mut msos_descriptor = [0; 256];
     let mut control_buf = [0; 64];
     let mut request_handler = MyRequestHandler {};
@@ -71,7 +122,8 @@ async fn main(_spawner: Spawner) {
         Input::new(p.PIN_27, Pull::Down),
         Input::new(p.PIN_2, Pull::Down),
         Input::new(p.PIN_3, Pull::Down),
-        Input::new(p.PIN_21, Pull::Down),
+        Input::new(p.PIN_28, Pull::Down),
+        // Input::new(p.PIN_21, Pull::Down),
         // allows pins 0 and 1 to be used for serial debugging
         Input::new(p.PIN_12, Pull::Down),
         Input::new(p.PIN_13, Pull::Down),
@@ -87,21 +139,11 @@ async fn main(_spawner: Spawner) {
     };
     let hid = HidReaderWriter::<_, 1, 8>::new(&mut builder, &mut state, config);
 
-    // Build the builder.
     let mut usb = builder.build();
-
-    // Run the USB device.
     let usb_fut = usb.run();
-
-    // Set up the signal pin that will be used to trigger the keyboard.
-    let mut signal_pin = Input::new(p.PIN_16, Pull::Down);
-
-    // Enable the schmitt trigger to slightly debounce.
-    signal_pin.set_schmitt(true);
 
     let (reader, mut writer) = hid.split();
 
-    // Do stuff with the class!
     let in_fut = async {
         loop {
             let scan_code = match keypad.key_down().await {
