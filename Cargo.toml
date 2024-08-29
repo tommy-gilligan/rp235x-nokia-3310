@@ -29,6 +29,7 @@ cortex-m-rt = "0.7.0"
 critical-section = "1.1"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 usbd-hid = "0.8.1"
+embedded-graphics = "0.8.1"
 
 [profile.release]
 debug = 2
