@@ -52,9 +52,6 @@ so something to leave for last
 
 ### TODO
 #### Hardware
-- use on-board 2350 instead of connected pico board.  an opportunity to reassign pins.  GP0+1 should be left available for debugging.  leave adc available for adc functions.
-- add pads for more buttons: up/down/select
-- sim card connection
 - power from battery
 - power button (currently it is a second boot button)
 - detect battery type to refuse NiMH
