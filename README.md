@@ -52,12 +52,12 @@ so something to leave for last
 
 ### TODO
 #### Hardware
-- power from battery
-- power button (currently it is a second boot button)
 - detect battery type to refuse NiMH
 - LiPo charging
-- add LEDs to lightup keypad and display
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
+- power button (currently it is a second boot button)
+- add LEDs to lightup keypad and display
+- power from battery
 
 #### Software
 - stop using local ie. path dependencies for embassy

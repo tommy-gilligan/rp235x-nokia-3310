@@ -1,6 +1,5 @@
 [workspace]
-edition = "2021"
-members = ["embassy-keypad", "pcd8544"]
+members = ["embassy-keypad", "pcd8544", "rtttl"]
 
 [package]
 edition = "2021"
@@ -9,6 +8,7 @@ version = "0.1.0"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+rtttl = { path = "./rtttl" }
 embassy-keypad = { path = "./embassy-keypad" }
 embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
 embassy-embedded-hal = { version = "0.2.0", path = "/home/tom/embassy/embassy-embedded-hal", features = ["defmt"] }
