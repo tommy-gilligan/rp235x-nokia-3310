@@ -30,7 +30,7 @@ async fn main(_spawner: Spawner) {
 
     let mut pwm = Pwm::new_output_a(
         p.PWM_SLICE2,
-        p.PIN_4,
+        p.PIN_2,
         pwm_config(440, 90)
     );
 
