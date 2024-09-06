@@ -1,8 +1,8 @@
-# RP2040 Nokia 3310 Adapter Board
+# RP235x Nokia 3310 Adapter Board
 
 This started as a cute "what if?":
 
-> What if I could typeout messages on my smartphone by using tactile buttons like I used to have on my phone back in high school?
+> What if I could type out messages on my smart phone by using tactile buttons like I used to have on my phone back in high school?
 
 Because the board would need to fit into the chassis of a Nokia 3310 and because there are existing doodads that would be sitting alongside the board anyways, scope has crept to include connecting to these other thingamajigs.
 
@@ -11,44 +11,34 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 
 ### Pin Assignment
 
-- Vibration: GP28
-- Buzzer: GP4
+- Vibration: GPIO2
+- Buzzer: GPIO21
 - Keypad:
-	- Clear GP11
-	- 1 GP8
-	- 2 GP7
-	- 3 GP22
-	- 4 GP6
-	- 5 GP5
-	- 6 GP27
-	- 7 GP2
-	- 8 GP3
-	- 9 GP21
-	- * GP0
-	- 0 GP1
-	- # GP26 
+    - Select GPIO12
+    - Up GPIO8
+	- Clear GPIO16
+	- 1 GPIO17
+	- 2 GPIO13
+	- 3 GPIO7
+	- 4 GPIO18
+	- 5 GPIO14
+	- 6 GPIO6
+	- 7 GPIO19
+	- 8 GPIO11
+	- 9 GPIO5
+	- * GPIO20
+	- 0 GPIO10
+	- # GPIO4 
 - Display:
-	- 1 3.3V
-	- 2 GP18 SPI0 SCK
-	- 3 GP19 SPI0 TX
-	- 4 GP15 D/C
-	- 5 GP17 SPI0 CSn
-	- 6 GND
-	- 7 GND + cap
-	- 8 GP14 Reset
-
-### Sim card notes
-/¯¯¯¯¯¯¯¯¯¯¯|
-|io /\ clock|
-|Vpp|| reset|
-|gnd\/Vcc   |
-¯¯¯¯¯¯¯¯¯¯¯¯¯
-Vpp does not matter
-protocol is custom but simple and well enough documented
-but not easy going from zero to something that works here
-what tests can i do?
-probably needs to use pio
-so something to leave for last
+	- CLK GPIO38 SPI0
+	- TX GPIO39 SPI0
+	- D/C GPIO36
+	- Csn GPIO37 SPI0
+	- RST GPIO33
+- SIM:
+    - RST GPIO23
+    - CLK GPIO15
+    - I/O GPIO22
 
 ### TODO
 #### Hardware
