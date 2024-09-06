@@ -39,8 +39,7 @@ async fn main(_spawner: Spawner) {
         let time_at_start = Instant::now();
 
         loop {
-            let time_since_start = Instant::now().duration_since(time_at_start).as_millis() as u32;
-
+            let time_since_start = Instant::now().duration_since(time_at_start).as_micros() as u32;
             if let Some(note) = song.note_at(time_since_start) {
                 match note.frequency() {
                     Some(Ok(frequency)) => pwm.set_config(&pwm_config(frequency, 90)),
