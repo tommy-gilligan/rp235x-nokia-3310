@@ -28,6 +28,8 @@ use pcd8544::Driver as PCD8544;
 use embassy_time::{Timer};
 use embedded_hal_1::delay::DelayNs;
 use defmt::Format;
+use embassy_futures::select::{select4, Either4};
+use embedded_hal_async::digital::Wait;
 
 // 440Hz 90%
 fn pwm_config(frequency: u32, duty: u32) -> Config {
@@ -59,8 +61,15 @@ enum Button {
     Hash,
 }
 
+#[derive(Debug, PartialEq, Format, Copy, Clone)]
+enum ButtonEvent {
+    Down(Button),
+    Up(Button),
+    None
+}
+
 struct Matrix<'a> {
-    active: Option<Button>,
+    last_event: ButtonEvent,
     row_a: Input<'a>,
     row_b: Input<'a>,
     row_c: Input<'a>,
@@ -72,12 +81,12 @@ struct Matrix<'a> {
 
 impl <'a>Matrix<'a> {
     pub fn new(row_a: Input<'a>, row_b: Input<'a>, row_c: Input<'a>, row_d: Input<'a>, mut col_a: Output<'a>, mut col_b: Output<'a>, mut col_c: Output<'a>) -> Matrix<'a> {
-        col_a.set_low();
-        col_b.set_low();
-        col_c.set_low();
+        col_a.set_high();
+        col_b.set_high();
+        col_c.set_high();
 
         Matrix {
-            active: None,
+            last_event: ButtonEvent::None,
             row_a,
             row_b,
             row_c,
@@ -88,52 +97,157 @@ impl <'a>Matrix<'a> {
         }
     }
 
-    async fn button_down(&mut self) -> Option<Button> {
-        self.col_a.set_high();
-        self.col_b.set_low();
-        self.col_c.set_low();
-        Delay.delay_us(10);
+    async fn event(&mut self) -> ButtonEvent {
+        let mut result = ButtonEvent::None;
 
-        let col_a = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
-            (true, _, _, _) => Some(Button::One),
-            (_, true, _, _) => Some(Button::Four),
-            (_, _, true, _) => Some(Button::Seven),
-            (_, _, _, true) => Some(Button::Asterisk),
-            _ => None
-        };
-
-        self.col_a.set_low();
-        self.col_b.set_high();
-        self.col_c.set_low();
-        Delay.delay_us(10);
-        let col_b = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
-            (true, _, _, _) => Some(Button::Two),
-            (_, true, _, _) => Some(Button::Five),
-            (_, _, true, _) => Some(Button::Eight),
-            (_, _, _, true) => Some(Button::Zero),
-            _ => None
-        };
-
-        self.col_a.set_low();
-        self.col_b.set_low();
-        self.col_c.set_high();
-        Delay.delay_us(10);
-
-        let col_c = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
-            (true, _, _, _) => Some(Button::Three),
-            (_, true, _, _) => Some(Button::Six),
-            (_, _, true, _) => Some(Button::Nine),
-            (_, _, _, true) => Some(Button::Hash),
-            _ => None
-        };
-
-        let result = col_a.or(col_b).or(col_c);
-        if self.active != result {
-            self.active = result;
-            return result;
-        } else {
-            return None;
+        match self.last_event {
+            ButtonEvent::Down(b @ Button::One | b @ Button::Two | b @ Button::Three) => {
+                self.row_a.wait_for_low().await;
+                self.last_event = ButtonEvent::Up(b);
+                return self.last_event;
+            },
+            ButtonEvent::Down(b @ Button::Four | b @ Button::Five | b @ Button::Six) => {
+                self.row_b.wait_for_low().await;
+                self.last_event = ButtonEvent::Up(b);
+                return self.last_event;
+            },
+            ButtonEvent::Down(b @ Button::Seven | b @ Button::Eight | b @ Button::Nine) => {
+                self.row_c.wait_for_low().await;
+                self.last_event = ButtonEvent::Up(b);
+                return self.last_event;
+            },
+            ButtonEvent::Down(b @ Button::Asterisk | b @ Button::Zero | b @ Button::Hash) => {
+                self.row_d.wait_for_low().await;
+                self.last_event = ButtonEvent::Up(b);
+                return self.last_event;
+            },
+            _ => {}
         }
+
+        match select4(
+            self.row_a.wait_for_high(),
+            self.row_b.wait_for_high(),
+            self.row_c.wait_for_high(),
+            self.row_d.wait_for_high(),
+        ).await {
+            Either4::First(_) => {
+                self.col_b.set_low();
+                self.col_c.set_low();
+                Timer::after_micros(10).await;
+
+                if self.row_a.is_high() && self.last_event != ButtonEvent::Down(Button::One) {
+                    self.last_event = ButtonEvent::Down(Button::One);
+                    result = self.last_event;
+                }
+
+                self.col_a.set_low();
+                self.col_b.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_a.is_high() && self.last_event != ButtonEvent::Down(Button::Two) {
+                    self.last_event = ButtonEvent::Down(Button::Two);
+                    result = self.last_event;
+                }
+
+                self.col_b.set_low();
+                self.col_c.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_a.is_high() && self.last_event != ButtonEvent::Down(Button::Three) {
+                    self.last_event = ButtonEvent::Down(Button::Three);
+                    result = self.last_event;
+                }
+            },
+            Either4::Second(_) => {
+                self.col_b.set_low();
+                self.col_c.set_low();
+                Timer::after_micros(10).await;
+
+                if self.row_b.is_high() && self.last_event != ButtonEvent::Down(Button::Four) {
+                    self.last_event = ButtonEvent::Down(Button::Four);
+                    result = self.last_event;
+                }
+
+                self.col_a.set_low();
+                self.col_b.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_b.is_high() && self.last_event != ButtonEvent::Down(Button::Five) {
+                    self.last_event = ButtonEvent::Down(Button::Five);
+                    result = self.last_event;
+                }
+
+                self.col_b.set_low();
+                self.col_c.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_b.is_high() && self.last_event != ButtonEvent::Down(Button::Six) {
+                    self.last_event = ButtonEvent::Down(Button::Six);
+                    result = self.last_event;
+                }
+            },
+            Either4::Third(_) => {
+                self.col_b.set_low();
+                self.col_c.set_low();
+                Timer::after_micros(10).await;
+
+                if self.row_c.is_high() && self.last_event != ButtonEvent::Down(Button::Seven) {
+                    self.last_event = ButtonEvent::Down(Button::Seven);
+                    result = self.last_event;
+                }
+
+                self.col_a.set_low();
+                self.col_b.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_c.is_high() && self.last_event != ButtonEvent::Down(Button::Eight) {
+                    self.last_event = ButtonEvent::Down(Button::Eight);
+                    result = self.last_event;
+                }
+
+                self.col_b.set_low();
+                self.col_c.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_c.is_high() && self.last_event != ButtonEvent::Down(Button::Nine) {
+                    self.last_event = ButtonEvent::Down(Button::Nine);
+                    result = self.last_event;
+                }
+            },
+            Either4::Fourth(_) => {
+                self.col_b.set_low();
+                self.col_c.set_low();
+                Timer::after_micros(10).await;
+
+                if self.row_d.is_high() && self.last_event != ButtonEvent::Down(Button::Asterisk) {
+                    self.last_event = ButtonEvent::Down(Button::Asterisk);
+                    result = self.last_event;
+                }
+
+                self.col_a.set_low();
+                self.col_b.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_d.is_high() && self.last_event != ButtonEvent::Down(Button::Zero) {
+                    self.last_event = ButtonEvent::Down(Button::Zero);
+                    result = self.last_event;
+                }
+
+                self.col_b.set_low();
+                self.col_c.set_high();
+                Timer::after_micros(10).await;
+
+                if self.row_d.is_high() && self.last_event != ButtonEvent::Down(Button::Hash) {
+                    self.last_event = ButtonEvent::Down(Button::Hash);
+                    result = self.last_event;
+                }
+            }
+        }
+
+        self.col_a.set_high();
+        self.col_b.set_high();
+
+        result
     }
 }
 
@@ -182,8 +296,10 @@ async fn main(_spawner: Spawner) {
     );
 
     loop {
-        if let Some(button) = matrix.button_down().await {
-            println!("{:?}", button);
+        match matrix.event().await {
+            ButtonEvent::Down(button) => println!("down {:?}", button),
+            ButtonEvent::Up(button) => println!("up {:?}", button),
+            _ => {}
         }
 
         // let mut song = rtttl::Song::new(SONG_TEXT);
