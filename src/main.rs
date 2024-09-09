@@ -43,68 +43,98 @@ fn pwm_config(frequency: u32, duty: u32) -> Config {
 
 const SONG_TEXT: &'static str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
 
-#[derive(Debug, PartialEq, Format)]
-enum Row {
-    A,
-    B,
-    C,
-    D
+#[derive(Debug, PartialEq, Format, Copy, Clone)]
+enum Button {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Asterisk,
+    Zero,
+    Hash,
 }
 
-#[derive(Debug, PartialEq, Format)]
-enum Col {
-    A,
-    B,
-    C,
+struct Matrix<'a> {
+    active: Option<Button>,
+    row_a: Input<'a>,
+    row_b: Input<'a>,
+    row_c: Input<'a>,
+    row_d: Input<'a>,
+    col_a: Output<'a>,
+    col_b: Output<'a>,
+    col_c: Output<'a>
 }
 
-fn get_key(
-    row_a: &Input,
-    row_b: &Input,
-    row_c: &Input,
-    row_d: &Input,
-    col_a: &mut Output,
-    col_b: &mut Output,
-    col_c: &mut Output
-) -> Option<(Row, Col)> {
-    col_a.set_high();
-    col_b.set_low();
-    col_c.set_low();
-    Delay.delay_us(10);
+impl <'a>Matrix<'a> {
+    pub fn new(row_a: Input<'a>, row_b: Input<'a>, row_c: Input<'a>, row_d: Input<'a>, mut col_a: Output<'a>, mut col_b: Output<'a>, mut col_c: Output<'a>) -> Matrix<'a> {
+        col_a.set_low();
+        col_b.set_low();
+        col_c.set_low();
 
-    match (row_a.is_high(), row_b.is_high(), row_c.is_high(), row_d.is_high()) {
-        (true, _, _, _) => return Some((Row::A, Col::A)),
-        (_, true, _, _) => return Some((Row::B, Col::A)),
-        (_, _, true, _) => return Some((Row::C, Col::A)),
-        (_, _, _, true) => return Some((Row::D, Col::A)),
-        _ => {}
+        Matrix {
+            active: None,
+            row_a,
+            row_b,
+            row_c,
+            row_d,
+            col_a,
+            col_b,
+            col_c
+        }
     }
 
-    col_a.set_low();
-    col_b.set_high();
-    col_c.set_low();
-    Delay.delay_us(10);
-    match (row_a.is_high(), row_b.is_high(), row_c.is_high(), row_d.is_high()) {
-        (true, _, _, _) => return Some((Row::A, Col::B)),
-        (_, true, _, _) => return Some((Row::B, Col::B)),
-        (_, _, true, _) => return Some((Row::C, Col::B)),
-        (_, _, _, true) => return Some((Row::D, Col::B)),
-        _ => {}
-    }
+    async fn button_down(&mut self) -> Option<Button> {
+        self.col_a.set_high();
+        self.col_b.set_low();
+        self.col_c.set_low();
+        Delay.delay_us(10);
 
-    col_a.set_low();
-    col_b.set_low();
-    col_c.set_high();
-    Delay.delay_us(10);
+        let col_a = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
+            (true, _, _, _) => Some(Button::One),
+            (_, true, _, _) => Some(Button::Four),
+            (_, _, true, _) => Some(Button::Seven),
+            (_, _, _, true) => Some(Button::Asterisk),
+            _ => None
+        };
 
-    match (row_a.is_high(), row_b.is_high(), row_c.is_high(), row_d.is_high()) {
-        (true, _, _, _) => return Some((Row::A, Col::C)),
-        (_, true, _, _) => return Some((Row::B, Col::C)),
-        (_, _, true, _) => return Some((Row::C, Col::C)),
-        (_, _, _, true) => return Some((Row::D, Col::C)),
-        _ => {}
+        self.col_a.set_low();
+        self.col_b.set_high();
+        self.col_c.set_low();
+        Delay.delay_us(10);
+        let col_b = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
+            (true, _, _, _) => Some(Button::Two),
+            (_, true, _, _) => Some(Button::Five),
+            (_, _, true, _) => Some(Button::Eight),
+            (_, _, _, true) => Some(Button::Zero),
+            _ => None
+        };
+
+        self.col_a.set_low();
+        self.col_b.set_low();
+        self.col_c.set_high();
+        Delay.delay_us(10);
+
+        let col_c = match (self.row_a.is_high(), self.row_b.is_high(), self.row_c.is_high(), self.row_d.is_high()) {
+            (true, _, _, _) => Some(Button::Three),
+            (_, true, _, _) => Some(Button::Six),
+            (_, _, true, _) => Some(Button::Nine),
+            (_, _, _, true) => Some(Button::Hash),
+            _ => None
+        };
+
+        let result = col_a.or(col_b).or(col_c);
+        if self.active != result {
+            self.active = result;
+            return result;
+        } else {
+            return None;
+        }
     }
-    return None;
 }
 
 #[embassy_executor::main]
@@ -140,20 +170,21 @@ async fn main(_spawner: Spawner) {
         pwm_config(440, 90)
     );
 
-
     let mut delay = Delay;
-    let a = Input::new(p.PIN_9, Pull::Down);
-    let b = Input::new(p.PIN_3, Pull::Down);
-    let c = Input::new(p.PIN_4, Pull::Down);
-    let d = Input::new(p.PIN_6, Pull::Down);
-    let mut x = Output::new(p.PIN_7, Level::High);
-    let mut y = Output::new(p.PIN_10, Level::High);
-    let mut z = Output::new(p.PIN_5, Level::High);
+    let mut matrix = Matrix::new(
+        Input::new(p.PIN_9, Pull::Down),
+        Input::new(p.PIN_3, Pull::Down),
+        Input::new(p.PIN_4, Pull::Down),
+        Input::new(p.PIN_6, Pull::Down),
+        Output::new(p.PIN_7, Level::High),
+        Output::new(p.PIN_10, Level::High),
+        Output::new(p.PIN_5, Level::High),
+    );
 
     loop {
-        let key = get_key(&a, &b, &c, &d, &mut x, &mut y, &mut z);
-        delay.delay_ms(50);
-        println!("{:?}", key);
+        if let Some(button) = matrix.button_down().await {
+            println!("{:?}", button);
+        }
 
         // let mut song = rtttl::Song::new(SONG_TEXT);
         // let time_at_start = Instant::now();
