@@ -9,34 +9,33 @@ use embedded_graphics::{
 };
 use core::fmt::Display;
 
-use crate::multitap::MultiTap;
-use crate::MultiTapEvent;
+use multi_tap::MultiTap;
 use core::fmt::Formatter;
 
 pub struct Model<'a> {
-    buffer: &'a mut [Option<MultiTapEvent>],
+    buffer: &'a mut [Option<multi_tap::Event>],
     index: usize
 }
 
 impl <'a>Model<'a> {
-    pub fn new(buffer: &'a mut [Option<MultiTapEvent>]) -> Self {
+    pub fn new(buffer: &'a mut [Option<multi_tap::Event>]) -> Self {
         Self {
             buffer,
             index: 0
         }
     }
 
-    pub fn update(&mut self, event: MultiTapEvent) {
+    pub fn update(&mut self, event: multi_tap::Event) {
         match event {
-            e @ MultiTapEvent::Decided(_) => {
-                if let Some(MultiTapEvent::Tentative(c)) = self.buffer[self.index] {
-                    self.buffer[self.index] = Some(MultiTapEvent::Decided(c));
+            e @ multi_tap::Event::Decided(_) => {
+                if let Some(multi_tap::Event::Tentative(c)) = self.buffer[self.index] {
+                    self.buffer[self.index] = Some(multi_tap::Event::Decided(c));
                 } else {
                     self.buffer[self.index] = Some(e);
                 }
                 self.index += 1;
             }
-            e @ MultiTapEvent::Tentative(_) => {
+            e @ multi_tap::Event::Tentative(_) => {
                 self.buffer[self.index] = Some(e);
             }
         }
@@ -58,10 +57,8 @@ impl<'a, C> TextInput<'a, C> where C: PixelColor {
         Self { model, style, tentative_style }
     }
 
-    pub fn update(&mut self, event: Option<MultiTapEvent>) {
-        if let Some(e) = event {
-            self.model.update(e);
-        }
+    pub fn update(&mut self, event: multi_tap::Event) {
+        self.model.update(event);
     }
 }
 
@@ -77,7 +74,7 @@ impl<'a, C> Drawable for TextInput<'a, C> where C: PixelColor {
         let mut point = Point::new(10, 10);
         for event in &self.model.buffer[..(self.model.index + 1)] {
             match event {
-                Some(MultiTapEvent::Decided(c)) => {
+                Some(multi_tap::Event::Decided(c)) => {
                     point = self.style.draw_string(
                         c.as_str(),
                         point,
@@ -85,7 +82,7 @@ impl<'a, C> Drawable for TextInput<'a, C> where C: PixelColor {
                         target,
                     )?;
                 },
-                Some(MultiTapEvent::Tentative(c)) => {
+                Some(multi_tap::Event::Tentative(c)) => {
                     point = self.tentative_style.draw_string(
                         c.as_str(),
                         point,

@@ -1,0 +1,12 @@
+[package]
+name = "multi-tap"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = { version = "0.3.30", default-features = false }
+
+defmt = "0.3"
+
+[dev-dependencies]
+tokio = { version = "*", features = ["macros", "test-util"] }

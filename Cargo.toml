@@ -1,5 +1,5 @@
 [workspace]
-members = ["embassy-keypad", "pcd8544", "rtttl"]
+members = ["embassy-keypad", "multi-tap", "pcd8544", "rtttl"]
 
 [package]
 edition = "2021"
@@ -8,16 +8,17 @@ version = "0.1.0"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+multi-tap = { path = "./multi-tap" }
 rtttl = { path = "./rtttl" }
 embassy-keypad = { path = "./embassy-keypad" }
 embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
 embassy-embedded-hal = { version = "0.2.0", path = "/home/tom/embassy/embassy-embedded-hal", features = ["defmt"] }
 embassy-sync = { version = "0.6.0", path = "/home/tom/embassy/embassy-sync", features = ["defmt"] }
 embassy-executor = { version = "0.6.0", path = "/home/tom/embassy/embassy-executor", features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt", "integrated-timers"] }
-embassy-time = { version = "0.3.2", path = "/home/tom/embassy/embassy-time", features = ["defmt", "defmt-timestamp-uptime"] }
 embassy-rp = { version = "0.2.0", path = "/home/tom/embassy/embassy-rp", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp2040"] }
 embassy-usb = { version = "0.3.0", path = "/home/tom/embassy/embassy-usb", features = ["defmt"] }
 embassy-futures = { version = "0.1.0", path = "/home/tom/embassy/embassy-futures" }
+embassy-time = { version = "0.3.2", path = "/home/tom/embassy/embassy-time", features = ["defmt", "defmt-timestamp-uptime"] }
 embassy-usb-logger = { version = "0.2.0", path = "/home/tom/embassy/embassy-usb-logger" }
 embedded-hal-async = "1.0.0"
 
