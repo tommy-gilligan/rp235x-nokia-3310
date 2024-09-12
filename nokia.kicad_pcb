@@ -3403,7 +3403,7 @@
 			(pintype "power_in")
 			(uuid "a6e8b41d-67ae-4211-be61-cdae216af559")
 		)
-		(model "${KICAD8_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-8_5.23x5.23mm_P1.27mm.wrl"
+		(model "${KICAD7_3DMODEL_DIR}/Package_SO.3dshapes/SOIC-8_5.275x5.275mm_P1.27mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7947,7 +7947,7 @@
 		(descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
 		(property "Reference" "C79"
-			(at -1.25 1.25 360)
+			(at -1.25 1.25 0)
 			(layer "B.SilkS")
 			(uuid "d762860f-ece5-4664-a21b-e7a5c5cae116")
 			(effects
@@ -7959,7 +7959,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 0 -1.16 360)
+			(at 0 -1.16 0)
 			(layer "B.Fab")
 			(uuid "75229bd5-5a77-4f2d-bc83-13585e932e18")
 			(effects
@@ -8118,7 +8118,7 @@
 			(uuid "867544bf-09d9-42d6-a3f8-9617e0cf5673")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "B.Fab")
 			(uuid "d8058fe4-5060-4e21-89bf-fcb6e407b510")
 			(effects
@@ -8164,7 +8164,7 @@
 		(uuid "52dc37a8-bec3-4ba9-bc46-7dfbbc14a2b1")
 		(at 42.4965 60.2 90)
 		(property "Reference" "U5"
-			(at -5.1 6.275 90)
+			(at -5.1 6.275 -90)
 			(layer "B.SilkS")
 			(uuid "4b94ba84-3874-4489-b893-44980464404a")
 			(effects
@@ -8176,7 +8176,7 @@
 			)
 		)
 		(property "Value" "RP2350_80QFN"
-			(at 0 -6.55 90)
+			(at 0 -6.55 -90)
 			(layer "B.Fab")
 			(uuid "8b288799-4aed-4fac-aa4d-e4eabe4b8485")
 			(effects
@@ -8188,7 +8188,7 @@
 			)
 		)
 		(property "Footprint" "RP2350_80QFN_minimal:RP2350-QFN-80-1EP_10x10_P0.4mm_EP3.4x3.4mm_ThermalVias"
-			(at 0 0 90)
+			(at 0 0 -90)
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "3d5c95ad-d92a-475d-9a16-f63640c9898e")
@@ -8201,7 +8201,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at 0 0 -90)
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "34a2de66-15ad-49a8-81a3-9873a41a4e82")
@@ -8214,7 +8214,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 90)
+			(at 0 0 -90)
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "ff9c2c79-b246-400b-973c-8e6e602d2717")

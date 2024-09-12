@@ -42,11 +42,13 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 
 ### TODO
 #### Hardware
+- update render (included more 3d models: U1, U5, L1, power button)
+- 2 pinouts: prototype vs fascimile
+- preliminary BoM
 - detect battery type to refuse NiMH
 - LiPo charging
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
 - power button (currently it is a second boot button)
-- add LEDs to lightup keypad and display
 - power from battery
 
 #### Software
@@ -59,6 +61,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - implement USB keyboard
 - interface with optional pico-w to expose keypad as bluetooth keyboard (speaker for notifications)
 - read/write to sim card
+- virtual device
 
 #### Misc
 - Come up with better name
