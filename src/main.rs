@@ -70,11 +70,13 @@ async fn main(_spawner: Spawner) {
 
     let display_spi =
         SpiDeviceWithConfig::new(&spi_bus, Output::new(p.PIN_13, Level::High), config.clone());
+
     let mut pcd8544 = PCD8544::new(
         SPIInterface::new(display_spi, Output::new(p.PIN_11, Level::High)),
         Output::new(p.PIN_12, Level::High),
     );
-    pcd8544.init(&mut Delay);
+    pcd8544.init(&mut Delay).unwrap();
+    pcd8544.set_contrast(64).unwrap();
 
     let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
 
@@ -164,7 +166,7 @@ async fn main(_spawner: Spawner) {
 
                     text_input.update(event);
                     text_input.draw(&mut pcd8544).unwrap();
-                    pcd8544.flush();
+                    pcd8544.flush().unwrap();
                 }
             },
             async {
