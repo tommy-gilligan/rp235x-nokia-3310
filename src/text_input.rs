@@ -1,5 +1,3 @@
-use core::str::from_utf8;
-
 use embedded_graphics::{
     mono_font::MonoTextStyle,
     prelude::DrawTarget,
@@ -7,22 +5,15 @@ use embedded_graphics::{
     text::{renderer::TextRenderer, Baseline},
     Drawable,
 };
-use core::fmt::Display;
-
-use multi_tap::MultiTap;
-use core::fmt::Formatter;
 
 pub struct Model<'a> {
     buffer: &'a mut [Option<multi_tap::Event>],
-    index: usize
+    index: usize,
 }
 
-impl <'a>Model<'a> {
+impl<'a> Model<'a> {
     pub fn new(buffer: &'a mut [Option<multi_tap::Event>]) -> Self {
-        Self {
-            buffer,
-            index: 0
-        }
+        Self { buffer, index: 0 }
     }
 
     pub fn update(&mut self, event: multi_tap::Event) {
@@ -42,19 +33,29 @@ impl <'a>Model<'a> {
     }
 }
 
-pub struct TextInput<'a, C> where C: PixelColor {
+pub struct TextInput<'a, C>
+where
+    C: PixelColor,
+{
     model: &'a mut Model<'a>,
     style: MonoTextStyle<'a, C>,
     tentative_style: MonoTextStyle<'a, C>,
 }
 
-impl<'a, C> TextInput<'a, C> where C: PixelColor {
+impl<'a, C> TextInput<'a, C>
+where
+    C: PixelColor,
+{
     pub fn new(
         model: &'a mut Model<'a>,
         style: MonoTextStyle<'a, C>,
         tentative_style: MonoTextStyle<'a, C>,
     ) -> Self {
-        Self { model, style, tentative_style }
+        Self {
+            model,
+            style,
+            tentative_style,
+        }
     }
 
     pub fn update(&mut self, event: multi_tap::Event) {
@@ -62,7 +63,10 @@ impl<'a, C> TextInput<'a, C> where C: PixelColor {
     }
 }
 
-impl<'a, C> Drawable for TextInput<'a, C> where C: PixelColor {
+impl<'a, C> Drawable for TextInput<'a, C>
+where
+    C: PixelColor,
+{
     type Color = C;
 
     type Output = ();
@@ -71,17 +75,14 @@ impl<'a, C> Drawable for TextInput<'a, C> where C: PixelColor {
     where
         D: DrawTarget<Color = Self::Color>,
     {
-        let mut point = Point::new(10, 10);
+        let mut point = Point::new(2, 15);
         for event in &self.model.buffer[..(self.model.index + 1)] {
             match event {
                 Some(multi_tap::Event::Decided(c)) => {
-                    point = self.style.draw_string(
-                        c.as_str(),
-                        point,
-                        Baseline::Alphabetic,
-                        target,
-                    )?;
-                },
+                    point =
+                        self.style
+                            .draw_string(c.as_str(), point, Baseline::Alphabetic, target)?;
+                }
                 Some(multi_tap::Event::Tentative(c)) => {
                     point = self.tentative_style.draw_string(
                         c.as_str(),

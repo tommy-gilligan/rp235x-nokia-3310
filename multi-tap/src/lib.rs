@@ -4,21 +4,14 @@
 #![feature(trivial_bounds)]
 #![feature(let_chains)]
 
-pub mod keypad;
 pub mod char;
+pub mod keypad;
 
-use core::{
-    ascii::Char,
-    future::Future
-};
+use core::{ascii::Char, future::Future};
 
-pub use keypad::*;
-use futures::{
-    pin_mut,
-    future::Either,
-    future::self,
-};
 use defmt::Format;
+use futures::{future, future::Either, pin_mut};
+pub use keypad::*;
 
 #[derive(Debug, PartialEq, Format, Copy, Clone)]
 pub enum Event {
@@ -26,24 +19,33 @@ pub enum Event {
     Decided(Char),
 }
 
-pub struct MultiTap<KEYPAD> where KEYPAD: Keypad {
+pub struct MultiTap<KEYPAD>
+where
+    KEYPAD: Keypad,
+{
     keypad: KEYPAD,
     last_press: Option<KEYPAD::Button>,
     last_emitted: Option<Event>,
     pending: Option<Event>,
 }
 
-impl<KEYPAD> MultiTap<KEYPAD> where KEYPAD: Keypad {
+impl<KEYPAD> MultiTap<KEYPAD>
+where
+    KEYPAD: Keypad,
+{
     pub fn new(keypad: KEYPAD) -> Self {
         Self {
             keypad,
             last_press: None,
             last_emitted: None,
-            pending: None
+            pending: None,
         }
     }
 
-    pub async fn event<T>(&mut self, timeout_future: T) -> Event where T: Future<Output = ()> {
+    pub async fn event<T>(&mut self, timeout_future: T) -> Event
+    where
+        T: Future<Output = ()>,
+    {
         // if something has just been decided
         // still emit the next tentative
         if let Some(pending) = self.pending {
@@ -63,56 +65,56 @@ impl<KEYPAD> MultiTap<KEYPAD> where KEYPAD: Keypad {
                         self.last_emitted = None;
                         self.last_press = None;
 
-                        return Event::Decided(e)
+                        return Event::Decided(e);
                     }
-                },
+                }
                 Either::Right((keypad::Event::Down(e), _)) => {
-                    if let Some(p) = &self.last_press && *p != e {
+                    if let Some(p) = &self.last_press
+                        && *p != e
+                    {
                         if let Some(Event::Tentative(f)) = self.last_emitted {
                             self.last_emitted = Some(Event::Tentative(e.clone().into()));
                             self.last_press = Some(e.clone());
                             // TODO: panic if there is already a pending event
                             self.pending = Some(Event::Tentative(e.clone().into()));
 
-                            return Event::Decided(f)
+                            return Event::Decided(f);
                         }
                     } else {
                         self.last_press = Some(e.clone());
                         self.last_emitted = match self.last_emitted {
-                            Some(Event::Tentative(c)) => {
-                                Some(Event::Tentative(char::next_char(c)))
-                            }
+                            Some(Event::Tentative(c)) => Some(Event::Tentative(char::next_char(c))),
                             Some(Event::Decided(_)) => None,
                             None => Some(Event::Tentative(e.clone().into())),
                         };
 
-                        return self.last_emitted.unwrap()
+                        return self.last_emitted.unwrap();
                     }
-                },
+                }
                 Either::Right((keypad::Event::Up(_), _)) => {}
             }
         } else {
             if let keypad::Event::Down(e) = event_future.await {
-                if let Some(p) = &self.last_press && *p != e {
+                if let Some(p) = &self.last_press
+                    && *p != e
+                {
                     if let Some(Event::Tentative(f)) = self.last_emitted {
                         self.last_emitted = Some(Event::Tentative(e.clone().into()));
                         self.last_press = Some(e.clone());
                         // TODO: panic if there is already a pending event
                         self.pending = Some(Event::Tentative(e.clone().into()));
 
-                        return Event::Decided(f)
+                        return Event::Decided(f);
                     }
                 } else {
                     self.last_press = Some(e.clone());
                     self.last_emitted = match self.last_emitted {
-                        Some(Event::Tentative(c)) => {
-                            Some(Event::Tentative(char::next_char(c)))
-                        }
+                        Some(Event::Tentative(c)) => Some(Event::Tentative(char::next_char(c))),
                         Some(Event::Decided(_)) => None,
                         None => Some(Event::Tentative(e.clone().into())),
                     };
 
-                    return self.last_emitted.unwrap()
+                    return self.last_emitted.unwrap();
                 }
             }
         }
@@ -144,7 +146,7 @@ mod test {
 
     struct TwoKeys<'a>(&'a [Key], usize);
 
-    impl <'a>TwoKeys<'a> {
+    impl<'a> TwoKeys<'a> {
         fn new(presses: &'a [Key]) -> Self {
             TwoKeys(presses, 0)
         }

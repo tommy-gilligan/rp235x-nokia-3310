@@ -1,10 +1,8 @@
 use core::ascii::Char;
 use embassy_usb::{
-    UsbDevice,
     class::hid::{HidReader, HidReaderWriter, HidWriter},
     driver::Driver,
-    Builder,
-    Config
+    Builder, Config, UsbDevice,
 };
 use usbd_hid::descriptor::{KeyboardReport, KeyboardUsage, SerializedDescriptor};
 
@@ -28,8 +26,11 @@ pub fn new<'a, D>(
     control_buf: &'a mut [u8],
     driver: D,
     state: &'a mut embassy_usb::class::hid::State<'a>,
-    device_handler: &'a mut MultiTapKeyboard
-) -> (UsbDevice<'a, D>, (HidReader<'a, D, 1>, HidWriter<'a, D, 8>)) where D: Driver<'a> {
+    device_handler: &'a mut MultiTapKeyboard,
+) -> (UsbDevice<'a, D>, (HidReader<'a, D, 1>, HidWriter<'a, D, 8>))
+where
+    D: Driver<'a>,
+{
     let mut builder = Builder::new(
         driver,
         config(),
@@ -49,9 +50,9 @@ pub fn new<'a, D>(
             request_handler: None,
             poll_ms: 60,
             max_packet_size: 64,
-        }
+        },
     );
-    
+
     (builder.build(), hid.split())
 }
 
@@ -84,6 +85,6 @@ pub fn char_to_keycode(event: Char) -> KeyboardUsage {
         Char::CapitalY => KeyboardUsage::KeyboardYy,
         Char::CapitalZ => KeyboardUsage::KeyboardZz,
         Char::Space => KeyboardUsage::KeyboardSpacebar,
-        _ => KeyboardUsage::KeyboardQq
+        _ => KeyboardUsage::KeyboardQq,
     }
 }

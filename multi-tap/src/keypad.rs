@@ -1,7 +1,4 @@
-use core::{
-    ascii::Char,
-    future::Future
-};
+use core::{ascii::Char, future::Future};
 
 use defmt::Format;
 

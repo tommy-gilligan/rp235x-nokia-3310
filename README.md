@@ -52,13 +52,10 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - power from battery
 
 #### Software
-- stop using local ie. path dependencies for embassy
 - finish no_std RTTTL parsing library and release
 - use embedded_graphics for console display
 - create example that plays RTTTL (and writes it to screen)
-- create keypad abstraction
 - test fake keypresses to create multi-tap converter
-- implement USB keyboard
 - interface with optional pico-w to expose keypad as bluetooth keyboard (speaker for notifications)
 - read/write to sim card
 - virtual device

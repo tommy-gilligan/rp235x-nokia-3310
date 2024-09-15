@@ -1,13 +1,10 @@
-use core::{
-    cell::RefCell,
-    sync::atomic::{AtomicBool, Ordering},
-};
+use core::sync::atomic::{AtomicBool, Ordering};
+use defmt::info;
 use embassy_usb::{
     class::hid::{ReportId, RequestHandler},
-    control::OutResponse
+    control::OutResponse,
+    Handler,
 };
-use embassy_usb::Handler;
-use defmt::info;
 
 pub struct MultitapHandler {}
 
@@ -67,7 +64,9 @@ impl Handler for MultiTapKeyboard {
     fn configured(&mut self, configured: bool) {
         self.configured.store(configured, Ordering::Relaxed);
         if configured {
-            info!("Device configured, it may now draw up to the configured current limit from Vbus.")
+            info!(
+                "Device configured, it may now draw up to the configured current limit from Vbus."
+            )
         } else {
             info!("Device is no longer configured, the Vbus current limit is 100mA.");
         }

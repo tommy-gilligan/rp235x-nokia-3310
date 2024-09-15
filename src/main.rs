@@ -5,53 +5,42 @@
 #![feature(trivial_bounds)]
 #![feature(let_chains)]
 
-use core::ascii::Char;
-use usbd_hid::descriptor::KeyboardUsage;
-
-use core::{
-    cell::RefCell,
-    sync::atomic::{AtomicBool, Ordering},
-};
+use core::cell::RefCell;
 use defmt::*;
 use display_interface_spi::SPIInterface;
-use embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig; use embassy_executor::Spawner; use embassy_futures::join::join;
+use embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig;
+use embassy_executor::Spawner;
+use embassy_futures::join::join;
 use embassy_rp::{
+    bind_interrupts,
     gpio::{Input, Level, Output, Pull},
+    peripherals::USB,
     pwm::{Config, Pwm},
     spi::{self, Spi},
-    bind_interrupts,
-    peripherals::USB,
     usb::{Driver, InterruptHandler},
 };
 use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
-use embassy_time::Delay;
+use embassy_time::{Delay, Timer};
+use embassy_usb::class::hid::State;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
+    mono_font::{ascii::FONT_10X20, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     Drawable,
 };
-use embassy_usb::{
-    class::hid::{HidReaderWriter, ReportId, RequestHandler, State},
-    control::OutResponse,
-    Builder,
-    Handler
-};
+use usbd_hid::descriptor::KeyboardReport;
 use {defmt_rtt as _, panic_probe as _};
-use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
-use embassy_usb::class::hid::HidWriter;
-use embassy_time::Timer;
 
 mod buzzer;
+mod matrix;
 mod text_input;
 mod usb;
-mod matrix;
 
-use pcd8544::Driver as PCD8544;
-use buzzer::*;
-use multi_tap::MultiTap;
-use text_input::TextInput;
 use crate::text_input::Model;
+use buzzer::*;
 use matrix::*;
+use multi_tap::MultiTap;
+use pcd8544::Driver as PCD8544;
+use text_input::TextInput;
 
 const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
 
@@ -97,15 +86,15 @@ async fn main(_spawner: Spawner) {
     let mut text_input = TextInput::new(
         &mut model,
         MonoTextStyleBuilder::new()
-            .font(&FONT_6X10)
+            .font(&FONT_10X20)
             .text_color(BinaryColor::On)
             .background_color(BinaryColor::Off)
             .build(),
         MonoTextStyleBuilder::new()
-            .font(&FONT_6X10)
+            .font(&FONT_10X20)
             .text_color(BinaryColor::Off)
             .background_color(BinaryColor::On)
-            .build()
+            .build(),
     );
 
     let mut config_descriptor = [0; 256];
@@ -122,7 +111,7 @@ async fn main(_spawner: Spawner) {
         &mut control_buf,
         driver,
         &mut state,
-        &mut device_handler
+        &mut device_handler,
     );
 
     join(
@@ -133,45 +122,73 @@ async fn main(_spawner: Spawner) {
                     let event = multi_tap.event(Timer::after_secs(2)).await;
 
                     if let multi_tap::Event::Decided(c) = event {
-                        match writer.write_serialize(&KeyboardReport {
-                            keycodes: [0, 0, 0, 0, 0, 0],
-                            leds: 0,
-                            modifier: 0x02,
-                            reserved: 0,
-                        }).await {
+                        match writer
+                            .write_serialize(&KeyboardReport {
+                                keycodes: [0, 0, 0, 0, 0, 0],
+                                leds: 0,
+                                modifier: 0x02,
+                                reserved: 0,
+                            })
+                            .await
+                        {
                             Ok(()) => {}
                             Err(e) => warn!("Failed to send report: {:?}", e),
                         };
 
-                        match writer.write_serialize(&KeyboardReport {
-                            keycodes: [usb::char_to_keycode(c) as u8, 0, 0, 0, 0, 0],
-                            leds: 0,
-                            modifier: 0x02,
-                            reserved: 0,
-                        }).await {
+                        match writer
+                            .write_serialize(&KeyboardReport {
+                                keycodes: [usb::char_to_keycode(c) as u8, 0, 0, 0, 0, 0],
+                                leds: 0,
+                                modifier: 0x02,
+                                reserved: 0,
+                            })
+                            .await
+                        {
                             Ok(()) => {}
                             Err(e) => warn!("Failed to send report: {:?}", e),
                         };
 
-                        match writer.write_serialize(&KeyboardReport {
-                            keycodes: [0, 0, 0, 0, 0, 0],
-                            leds: 0,
-                            modifier: 0x00,
-                            reserved: 0,
-                        }).await {
+                        match writer
+                            .write_serialize(&KeyboardReport {
+                                keycodes: [0, 0, 0, 0, 0, 0],
+                                leds: 0,
+                                modifier: 0x00,
+                                reserved: 0,
+                            })
+                            .await
+                        {
                             Ok(()) => {}
                             Err(e) => warn!("Failed to send report: {:?}", e),
                         };
                     }
 
                     text_input.update(event);
-                    text_input.draw(&mut pcd8544).unwrap();
-                    pcd8544.flush().unwrap();
+                    match text_input.draw(&mut pcd8544) {
+                        Err(pcd8544::Error::DisplayError(
+                            display_interface::DisplayError::OutOfBoundsError,
+                        )) => {
+                            println!("drawing out of bounds");
+                        }
+                        Err(_e) => {
+                            // defmt::panic!("{:?}", e);
+                        }
+                        Ok(()) => {}
+                    }
+                    match pcd8544.flush() {
+                        Err(display_interface::DisplayError::OutOfBoundsError) => {
+                            println!("drawing out of bounds");
+                        }
+                        Err(_e) => {
+                            // defmt::panic!("{:?}", e);
+                        }
+                        Ok(()) => {}
+                    }
                 }
             },
             async {
                 reader.run(false, &mut usb::MultitapHandler {}).await;
-            }
-        )
-    ).await;
+            },
+        ),
+    )
+    .await;
 }
