@@ -61,6 +61,9 @@ where
     pub fn update(&mut self, event: multi_tap::Event) {
         self.model.update(event);
     }
+
+    pub fn scroll_up(&mut self) {
+    }
 }
 
 impl<'a, C> Drawable for TextInput<'a, C>
@@ -69,25 +72,36 @@ where
 {
     type Color = C;
 
-    type Output = ();
+    type Output = Point;
 
     fn draw<D>(&self, target: &mut D) -> Result<Self::Output, <D as DrawTarget>::Error>
     where
         D: DrawTarget<Color = Self::Color>,
     {
-        let mut point = Point::new(2, 15);
+        let mut point = Point::new(0, 0);
+
         for event in &self.model.buffer[..(self.model.index + 1)] {
             match event {
                 Some(multi_tap::Event::Decided(c)) => {
+                    if self.style.measure_string(c.as_str(), point, Baseline::Top).next_position.x >= target.bounding_box().bottom_right().unwrap().x {
+                        point.y = point.y + self.style.line_height() as i32;
+                        point.x = 2;
+                    }
+
                     point =
                         self.style
-                            .draw_string(c.as_str(), point, Baseline::Alphabetic, target)?;
+                            .draw_string(c.as_str(), point, Baseline::Top, target)?;
                 }
                 Some(multi_tap::Event::Tentative(c)) => {
+                    if self.style.measure_string(c.as_str(), point, Baseline::Top).next_position.x >= target.bounding_box().bottom_right().unwrap().x {
+                        point.y = point.y + self.style.line_height() as i32;
+                        point.x = 2;
+                    }
+
                     point = self.tentative_style.draw_string(
                         c.as_str(),
                         point,
-                        Baseline::Alphabetic,
+                        Baseline::Top,
                         target,
                     )?;
                 }
@@ -95,6 +109,6 @@ where
             }
         }
 
-        return Ok(());
+        return Ok(point);
     }
 }

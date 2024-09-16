@@ -23,7 +23,7 @@ use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
 use embassy_time::{Delay, Timer};
 use embassy_usb::class::hid::State;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_10X20, MonoTextStyleBuilder},
+    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     Drawable,
 };
@@ -59,13 +59,13 @@ async fn main(_spawner: Spawner) {
 
     let display_spi =
         SpiDeviceWithConfig::new(&spi_bus, Output::new(p.PIN_13, Level::High), config.clone());
-
     let mut pcd8544 = PCD8544::new(
         SPIInterface::new(display_spi, Output::new(p.PIN_11, Level::High)),
         Output::new(p.PIN_12, Level::High),
     );
     pcd8544.init(&mut Delay).unwrap();
     pcd8544.set_contrast(64).unwrap();
+    pcd8544.invert_display(
 
     let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
 
@@ -86,12 +86,12 @@ async fn main(_spawner: Spawner) {
     let mut text_input = TextInput::new(
         &mut model,
         MonoTextStyleBuilder::new()
-            .font(&FONT_10X20)
+            .font(&FONT_6X10)
             .text_color(BinaryColor::On)
             .background_color(BinaryColor::Off)
             .build(),
         MonoTextStyleBuilder::new()
-            .font(&FONT_10X20)
+            .font(&FONT_6X10)
             .text_color(BinaryColor::Off)
             .background_color(BinaryColor::On)
             .build(),
@@ -104,6 +104,7 @@ async fn main(_spawner: Spawner) {
     let mut state = State::new();
     let driver = Driver::new(p.USB, Irqs);
     let mut device_handler = usb::MultiTapKeyboard::new();
+
     let (mut usb, (reader, mut writer)) = usb::new(
         &mut config_descriptor,
         &mut bos_descriptor,
@@ -172,10 +173,9 @@ async fn main(_spawner: Spawner) {
                         Err(_e) => {
                             // defmt::panic!("{:?}", e);
                         }
-                        Ok(()) => {}
-                    }
-                    match pcd8544.flush() {
-                        Err(display_interface::DisplayError::OutOfBoundsError) => {
+                        Ok(p) => {
+                            println!("{} {}", p.x, p.y);
+                      }                    }} match pcd8544.flush() { Err(display_interface::DisplayError::OutOfBoundsError) => {
                             println!("drawing out of bounds");
                         }
                         Err(_e) => {
@@ -191,4 +191,4 @@ async fn main(_spawner: Spawner) {
         ),
     )
     .await;
-}
+
