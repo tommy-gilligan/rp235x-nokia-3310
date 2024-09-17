@@ -17,36 +17,28 @@ use embassy_rp::{
     peripherals::USB,
     pwm::{Config, Pwm},
     spi::{self, Spi},
-    usb::{Driver, InterruptHandler},
 };
 use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
 use embassy_time::{Delay, Timer};
-use embassy_usb::class::hid::State;
 use embedded_graphics::{
     mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     Drawable,
 };
-use usbd_hid::descriptor::KeyboardReport;
 use {defmt_rtt as _, panic_probe as _};
 
 mod buzzer;
 mod matrix;
-mod text_input;
 mod usb;
 
-use crate::text_input::Model;
+use app::text_input::Model;
 use buzzer::*;
 use matrix::*;
 use multi_tap::MultiTap;
 use pcd8544::Driver as PCD8544;
-use text_input::TextInput;
+use app::text_input::TextInput;
 
 const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
-
-bind_interrupts!(struct Irqs {
-    USBCTRL_IRQ => InterruptHandler<USB>;
-});
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -81,7 +73,6 @@ async fn main(_spawner: Spawner) {
 
     let mut buffer: [Option<multi_tap::Event>; 80] = [Default::default(); 80];
     let mut model = Model::new(&mut buffer);
-
     let mut multi_tap = MultiTap::new(matrix);
     let mut text_input = TextInput::new(
         &mut model,
@@ -97,98 +88,10 @@ async fn main(_spawner: Spawner) {
             .build(),
     );
 
-    let mut config_descriptor = [0; 256];
-    let mut bos_descriptor = [0; 256];
-    let mut msos_descriptor = [0; 256];
-    let mut control_buf = [0; 64];
-    let mut state = State::new();
-    let driver = Driver::new(p.USB, Irqs);
-    let mut device_handler = usb::MultiTapKeyboard::new();
-
-    let (mut usb, (reader, mut writer)) = usb::new(
-        &mut config_descriptor,
-        &mut bos_descriptor,
-        &mut msos_descriptor,
-        &mut control_buf,
-        driver,
-        &mut state,
-        &mut device_handler,
-    );
-
-    join(
-        usb.run(),
-        join(
-            async {
-                loop {
-                    let event = multi_tap.event(Timer::after_secs(2)).await;
-
-                    if let multi_tap::Event::Decided(c) = event {
-                        match writer
-                            .write_serialize(&KeyboardReport {
-                                keycodes: [0, 0, 0, 0, 0, 0],
-                                leds: 0,
-                                modifier: 0x02,
-                                reserved: 0,
-                            })
-                            .await
-                        {
-                            Ok(()) => {}
-                            Err(e) => warn!("Failed to send report: {:?}", e),
-                        };
-
-                        match writer
-                            .write_serialize(&KeyboardReport {
-                                keycodes: [usb::char_to_keycode(c) as u8, 0, 0, 0, 0, 0],
-                                leds: 0,
-                                modifier: 0x02,
-                                reserved: 0,
-                            })
-                            .await
-                        {
-                            Ok(()) => {}
-                            Err(e) => warn!("Failed to send report: {:?}", e),
-                        };
-
-                        match writer
-                            .write_serialize(&KeyboardReport {
-                                keycodes: [0, 0, 0, 0, 0, 0],
-                                leds: 0,
-                                modifier: 0x00,
-                                reserved: 0,
-                            })
-                            .await
-                        {
-                            Ok(()) => {}
-                            Err(e) => warn!("Failed to send report: {:?}", e),
-                        };
-                    }
-
-                    text_input.update(event);
-                    match text_input.draw(&mut pcd8544) {
-                        Err(pcd8544::Error::DisplayError(
-                            display_interface::DisplayError::OutOfBoundsError,
-                        )) => {
-                            println!("drawing out of bounds");
-                        },
-                        Err(_e) => {
-                            // defmt::panic!("{:?}", e);
-                        },
-                        Ok(p) => { println!("{} {}", p.x, p.y); }
-                    }
-                    match pcd8544.flush() { Err(display_interface::DisplayError::OutOfBoundsError) => {
-                            println!("drawing out of bounds");
-                        }
-                        Err(_e) => {
-                            // defmt::panic!("{:?}", e);
-                        }
-                        Ok(()) => {}
-                    }
-                }
-            },
-            async {
-                reader.run(false, &mut usb::MultitapHandler {}).await;
-            },
-        ),
-    )
-    .await;
+    loop {
+        let event = multi_tap.event(Timer::after_secs(2)).await;
+        text_input.update(event);
+        text_input.draw(&mut pcd8544);
+        pcd8544.flush();
+    }
 }

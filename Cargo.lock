@@ -39,6 +39,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "app"
+version = "0.1.0"
+dependencies = [
+ "embedded-graphics",
+ "multi-tap",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1096,37 +1104,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "main"
-version = "0.1.0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "critical-section",
- "defmt",
- "defmt-rtt",
- "display-interface",
- "display-interface-spi",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-futures 0.1.1 (git+https://github.com/embassy-rs/embassy.git)",
- "embassy-rp",
- "embassy-sync",
- "embassy-time",
- "embassy-usb",
- "embassy-usb-logger",
- "embedded-graphics",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "fixed",
- "fixed-macro",
- "multi-tap",
- "panic-probe",
- "pcd8544",
- "rtttl",
- "usbd-hid",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1542,6 +1519,38 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
+
+[[package]]
+name = "rp"
+version = "0.1.0"
+dependencies = [
+ "app",
+ "cortex-m",
+ "cortex-m-rt",
+ "critical-section",
+ "defmt",
+ "defmt-rtt",
+ "display-interface",
+ "display-interface-spi",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-futures 0.1.1 (git+https://github.com/embassy-rs/embassy.git)",
+ "embassy-rp",
+ "embassy-sync",
+ "embassy-time",
+ "embassy-usb",
+ "embassy-usb-logger",
+ "embedded-graphics",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "fixed",
+ "fixed-macro",
+ "multi-tap",
+ "panic-probe",
+ "pcd8544",
+ "rtttl",
+ "usbd-hid",
+]
 
 [[package]]
 name = "rp-pac"

@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 multi-tap = { workspace = true }
 rtttl = { workspace = true }
 pcd8544 = { workspace = true }
+app = { workspace = true }
 
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
