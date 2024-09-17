@@ -58,7 +58,7 @@ async fn main(_spawner: Spawner) {
     );
     pcd8544.init(&mut Delay).unwrap();
     pcd8544.set_contrast(64).unwrap();
-    pcd8544.invert_display(true);
+    // pcd8544.invert_display(true);
 
     let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
 

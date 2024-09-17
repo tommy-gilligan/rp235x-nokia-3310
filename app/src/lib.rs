@@ -1,6 +1,8 @@
 #![no_std]
 #![feature(ascii_char)]
 pub mod text_input;
+pub mod buzzer;
+
 use multi_tap::*;
 use text_input::{Model, TextInput};
 use embedded_graphics::{

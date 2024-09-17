@@ -8,15 +8,6 @@ impl<'a> Buzzer<'a> {
         Self(pwm, 90, 0)
     }
 
-    pub fn set_frequency(&mut self, frequency: u32) {
-        self.2 = frequency;
-        self.update();
-    }
-
-    pub fn get_frequency(&self) -> u32 {
-        self.2
-    }
-
     fn update(&mut self) {
         if self.2 == 0 {
             let mut c: Config = Default::default();
@@ -32,5 +23,18 @@ impl<'a> Buzzer<'a> {
 
             self.0.set_config(&c);
         }
+    }
+}
+
+impl <'a>app::buzzer::Buzzer for Buzzer<'a> {
+    fn enable(&mut self) {
+    }
+
+    fn disable(&mut self) {
+    }
+
+    fn set_frequency(&mut self, frequency: u32) {
+        self.2 = frequency;
+        self.update();
     }
 }
