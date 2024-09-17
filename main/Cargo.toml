@@ -30,6 +30,6 @@ embassy-usb = { workspace = true }
 embassy-futures = { workspace = true }
 embassy-usb-logger = { workspace = true }
 
-embassy-sync = { workspace = true }
-embassy-executor = { workspace = true }
-embassy-time = { workspace = true }
+embassy-sync = { workspace = true, features = ["defmt"] }
+embassy-executor = { workspace = true, features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt", "integrated-timers"] }
+embassy-time = { workspace = true, features = ["defmt", "defmt-timestamp-uptime"] }

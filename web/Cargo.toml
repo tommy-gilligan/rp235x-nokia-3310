@@ -1,0 +1,27 @@
+[package]
+edition = "2021"
+name = "embassy-wasm-example"
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+embassy-sync = { workspace = true, features = ["log"] }
+embassy-executor = { workspace = true, features = ["arch-wasm", "executor-thread", "log", "integrated-timers"] }
+embassy-time = { workspace = true, features = ["log", "wasm"] }
+
+wasm-logger = { workspace = true }
+wasm-bindgen = { workspace = true }
+web-sys = { workspace = true, features = ["AudioParam", "OscillatorNode", "AudioContext", "Document", "Element", "HtmlElement", "Node", "EventTarget", "MouseEvent", "Window", "OscillatorType", "AudioDestinationNode" ] }
+log = { workspace = true }
+
+rtttl = { workspace = true }
+multi-tap = { workspace = true }
+
+embedded-graphics-web-simulator = { workspace = true }
+embedded-graphics = { workspace = true }
+
+[profile.release]
+debug = 2

@@ -1,36 +1,44 @@
 [workspace]
 resolver = "2"
-members = ["embassy-keypad", "main", "multi-tap", "pcd8544", "rtttl"]
+members = ["embassy-keypad", "main", "multi-tap", "pcd8544", "rtttl", "web"]
 
 [workspace.dependencies]
 multi-tap = { path = "./multi-tap" }
-rtttl = { path = "./rtttl" }
 pcd8544 = { path = "./pcd8544" }
+rtttl = { path = "./rtttl" }
 
+embassy-embedded-hal = { version = "*", git = "https://github.com/embassy-rs/embassy.git", features = ["defmt"] }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", features = ["executor-thread", "integrated-timers"] }
+embassy-futures = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
+embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
+embassy-time = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
+embassy-usb = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt"] }
+embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
+
+embedded-graphics = "*"
 embedded-hal = { version = "1.0" }
 embedded-hal-async = "1.0.0"
-defmt = "*"
-defmt-rtt = "*"
 fixed = "*"
 fixed-macro = "*"
+usbd-hid = "*"
+
+# rp235x
 cortex-m = { version = "*", features = ["inline-asm"] }
 cortex-m-rt = "*"
 critical-section = "*"
-panic-probe = { version = "*", features = ["print-defmt"] }
-usbd-hid = "*"
-embedded-graphics = "*"
-display-interface-spi = "*"
+defmt = "*"
+defmt-rtt = "*"
 display-interface = "*"
-
-embassy-embedded-hal = { version = "*", git = "https://github.com/embassy-rs/embassy.git", features = ["defmt"] }
+display-interface-spi = "*"
 embassy-rp = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp2040"] }
-embassy-usb = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt"] }
-embassy-futures = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
-embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
+panic-probe = { version = "*", features = ["print-defmt"] }
 
-embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt"] }
-embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt", "integrated-timers"] }
-embassy-time = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "defmt-timestamp-uptime"] }
+# web
+log = "0.4.11"
+embedded-graphics-web-simulator = "*"
+wasm-bindgen = "0.2"
+wasm-logger = "0.2.0"
+web-sys = { version = "0.3", features = ["AudioParam", "OscillatorNode", "AudioContext", "Document", "Element", "HtmlElement", "Node", "EventTarget", "MouseEvent", "Window", "OscillatorType", "AudioDestinationNode" ] }
 
 [profile.release]
 debug = 2
