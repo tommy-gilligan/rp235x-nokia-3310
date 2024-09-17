@@ -1,0 +1,25 @@
+[build]
+target = "index.html"
+release = false
+dist = "dist"
+public_url = "/"
+filehash = false
+inject_scripts = true
+offline = false
+frozen = false
+locked = false
+minify = "never" # can be one of: never, on_release, always
+no_sri = true
+
+[watch]
+watch = [".."]
+ignore = []
+
+[serve]
+addresses = ["127.0.0.1"]
+port = 8080
+open = true
+no_spa = true
+no_autoreload = false
+no_error_reporting = false
+ws_protocol = "ws"

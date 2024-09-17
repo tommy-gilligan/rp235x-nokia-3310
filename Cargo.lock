@@ -598,6 +598,7 @@ dependencies = [
 name = "embassy-wasm-example"
 version = "0.1.0"
 dependencies = [
+ "app",
  "embassy-executor",
  "embassy-sync",
  "embassy-time",

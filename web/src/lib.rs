@@ -32,8 +32,62 @@ use std::borrow::BorrowMut;
 mod buzzer;
 use buzzer::*;
 
-mod keypad;
-use keypad::*;
+use embedded_graphics::Pixel;
+use embedded_graphics::primitives::Rectangle;
+
+// mod keypad;
+// use keypad::*;
+
+#[derive(PartialEq, Clone)]
+enum Button {
+    A
+}
+impl From<Button> for Char {
+    fn from(_: Button) -> Char {
+        Char::Space
+    }
+}
+struct Stub;
+
+use embedded_graphics::prelude::DrawTarget;
+use embedded_graphics::prelude::Dimensions;
+
+struct Flushing(WebSimulatorDisplay<embedded_graphics::pixelcolor::BinaryColor>);
+
+impl DrawTarget for Flushing {
+    type Color = BinaryColor;
+
+    type Error = <WebSimulatorDisplay<BinaryColor> as DrawTarget>::Error;
+
+    fn draw_iter<I: IntoIterator<Item = Pixel<<Self as DrawTarget>::Color>>>(&mut self, i: I) -> Result<(), <Self as DrawTarget>::Error> { 
+        let a = self.0.draw_iter(i);
+        self.0.flush();
+        a
+    }
+}
+
+impl Dimensions for Flushing {
+    fn bounding_box(&self) -> Rectangle {
+        self.0.bounding_box()
+    }
+}
+
+impl Keypad for Stub {
+  type Button = Button;
+
+  async fn event(&mut self) -> multi_tap::keypad::Event<Button> {
+    Timer::after_secs(1).await;
+    return multi_tap::keypad::Event::Down(Button::A);
+
+    // loop {
+    //   Timer::after_millis(1).await;
+    //   if let Some(multi_tap::keypad::Event::Down(e)) = self.last_event.borrow().clone() {
+    //       self.last_event.replace(None);
+    //       return multi_tap::keypad::Event::Down(e);
+    //   }
+    // }
+  }
+}
 
 #[embassy_executor::task]
 async fn ticker() {
@@ -48,7 +102,7 @@ async fn ticker() {
     });
     logo.add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref()).unwrap();
     let output_settings = OutputSettingsBuilder::new()
-        .scale(1)
+        .scale(2)
         .pixel_spacing(0)
         .build();
 
@@ -77,16 +131,11 @@ async fn ticker() {
     // );
     // keypad.init();
 
-    Text::new(
-	"HELLO",
-	Point::new(10, 10),
-	MonoTextStyle::new(&FONT_6X9, BinaryColor::Off)
-    ).draw(&mut display).unwrap();
-    display.flush().expect("Couldn't update");
-
+    let mut menu = app::Menu::new(Stub, Flushing(display));
+    menu.process().await;
     loop {
-	console::log_1(&"down".into());
-        Timer::after_secs(1).await;
+        console::log_1(&"down".into());
+	Timer::after_secs(1).await;
     }
 }
 

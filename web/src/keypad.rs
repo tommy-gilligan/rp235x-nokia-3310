@@ -2,6 +2,7 @@ use wasm_bindgen::JsCast;
 use web_sys::{Element, MouseEvent};
 use wasm_bindgen::closure::Closure;
 use multi_tap::Keypad;
+use embassy_time::Timer;
 
 mod button;
 pub use button::*;
@@ -123,17 +124,21 @@ impl DomK {
     }
 }
 
-// impl Keypad for DomK {
-//   type Button = Button;
-// 
-//   async fn event(&mut self) -> multi_tap::keypad::Event<Button> {
-//     return multi_tap::keypad::Event::Down(Button::One);
-//     // loop {
-//     //   Timer::after_millis(1).await;
-//     //   if let Some(multi_tap::keypad::Event::Down(e)) = self.last_event.borrow().clone() {
-//     //       self.last_event.replace(None);
-//     //       return multi_tap::keypad::Event::Down(e);
-//     //   }
-//     // }
-//   }
-// }
+unsafe impl Send for DomK {}
+
+impl Keypad for DomK {
+  type Button = Button;
+
+  async fn event(&mut self) -> multi_tap::keypad::Event<Button> {
+    Timer::after_secs(1).await;
+    return multi_tap::keypad::Event::Down(Button::One);
+
+    // loop {
+    //   Timer::after_millis(1).await;
+    //   if let Some(multi_tap::keypad::Event::Down(e)) = self.last_event.borrow().clone() {
+    //       self.last_event.replace(None);
+    //       return multi_tap::keypad::Event::Down(e);
+    //   }
+    // }
+  }
+}

@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+app = { workspace = true }
 embassy-sync = { workspace = true, features = ["log"] }
 embassy-executor = { workspace = true, features = ["arch-wasm", "executor-thread", "log", "integrated-timers"] }
 embassy-time = { workspace = true, features = ["log", "wasm"] }
