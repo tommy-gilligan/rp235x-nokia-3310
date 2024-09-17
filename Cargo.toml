@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["embassy-keypad", "main", "multi-tap", "pcd8544", "rtttl", "web"]
+members = ["embassy-keypad", "rp", "multi-tap", "pcd8544", "rtttl", "web"]
 
 [workspace.dependencies]
 multi-tap = { path = "./multi-tap" }
@@ -22,7 +22,7 @@ fixed = "*"
 fixed-macro = "*"
 usbd-hid = "*"
 
-# rp235x
+# rp235x (targeting 2040 until available)
 cortex-m = { version = "*", features = ["inline-asm"] }
 cortex-m-rt = "*"
 critical-section = "*"
