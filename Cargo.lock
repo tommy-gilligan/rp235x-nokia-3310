@@ -638,8 +638,7 @@ dependencies = [
 [[package]]
 name = "embedded-graphics-web-simulator"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "568af92e5e6f45f7fe4456c5751d150428e2f6291a9845fa90f6ddc314a9463f"
+source = "git+https://github.com/tommy-gilligan/embedded-graphics-web-simulator.git#6bc6a0f146586dd41e001022f4482e76f3cb6d80"
 dependencies = [
  "embedded-graphics",
  "js-sys",

@@ -29,25 +29,18 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::borrow::BorrowMut;
 
+mod stub;
 mod buzzer;
-use buzzer::*;
+use buzzer::Buzzer as MyBuzzer;
+use stub::*;
 
 use embedded_graphics::Pixel;
 use embedded_graphics::primitives::Rectangle;
+use app::buzzer::Buzzer;
 
 // mod keypad;
 // use keypad::*;
 
-#[derive(PartialEq, Clone)]
-enum Button {
-    A
-}
-impl From<Button> for Char {
-    fn from(_: Button) -> Char {
-        Char::Space
-    }
-}
-struct Stub;
 
 use embedded_graphics::prelude::DrawTarget;
 use embedded_graphics::prelude::Dimensions;
@@ -72,38 +65,22 @@ impl Dimensions for Flushing {
     }
 }
 
-impl Keypad for Stub {
-  type Button = Button;
-
-  async fn event(&mut self) -> multi_tap::keypad::Event<Button> {
-    Timer::after_secs(1).await;
-    return multi_tap::keypad::Event::Down(Button::A);
-
-    // loop {
-    //   Timer::after_millis(1).await;
-    //   if let Some(multi_tap::keypad::Event::Down(e)) = self.last_event.borrow().clone() {
-    //       self.last_event.replace(None);
-    //       return multi_tap::keypad::Event::Down(e);
-    //   }
-    // }
-  }
-}
-
 #[embassy_executor::task]
 async fn ticker() {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
     let logo = document.get_element_by_id("nokia").unwrap();
-    let mut buzzer = Buzzer::new();
-    let closure = Closure::<dyn FnMut(_)>::new(move |_event: web_sys::MouseEvent| {
-        buzzer.start().unwrap();
-        buzzer.set_frequency(440.0).unwrap();
-    });
-    logo.add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref()).unwrap();
+    // let mut buzzer = MyBuzzer::new();
+    // let closure = Closure::<dyn FnMut(_)>::new(move |_event: web_sys::MouseEvent| {
+    //     buzzer.enable();
+    // });
+    // // buzzer.set_frequency(440);
+    // logo.add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref()).unwrap();
     let output_settings = OutputSettingsBuilder::new()
         .scale(2)
         .pixel_spacing(0)
+        .alpha_color(embedded_graphics::pixelcolor::BinaryColor::On)
         .build();
 
     let mut display: WebSimulatorDisplay<embedded_graphics::pixelcolor::BinaryColor> = WebSimulatorDisplay::new(
@@ -132,8 +109,8 @@ async fn ticker() {
     // keypad.init();
 
     let mut menu = app::Menu::new(Stub, Flushing(display));
-    menu.process().await;
     loop {
+        menu.process().await;
         console::log_1(&"down".into());
 	Timer::after_secs(1).await;
     }

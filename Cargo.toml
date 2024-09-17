@@ -36,7 +36,7 @@ panic-probe = { version = "*", features = ["print-defmt"] }
 
 # web
 log = "0.4.11"
-embedded-graphics-web-simulator = "*"
+embedded-graphics-web-simulator = { git = "https://github.com/tommy-gilligan/embedded-graphics-web-simulator.git" }
 wasm-bindgen = "0.2"
 wasm-logger = "0.2.0"
 web-sys = { version = "0.3", features = ["AudioParam", "OscillatorNode", "AudioContext", "Document", "Element", "HtmlElement", "Node", "EventTarget", "MouseEvent", "Window", "OscillatorType", "AudioDestinationNode" ] }
