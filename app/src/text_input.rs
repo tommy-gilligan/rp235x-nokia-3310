@@ -112,3 +112,43 @@ where
         return Ok(point);
     }
 }
+
+// #![no_std]
+// #![feature(ascii_char)]
+// pub mod text_input;
+// use multi_tap::*;
+// use embedded_graphics::prelude::DrawTarget;
+// use text_input::{Model, TextInput};
+// use embedded_graphics::{
+//     mono_font::{MonoTextStyleBuilder, ascii::FONT_6X10},
+//     pixelcolor::BinaryColor
+// };
+// 
+// struct Menu<'a, KEYPAD, DRAW_TARGET> where KEYPAD: Keypad, DRAW_TARGET: DrawTarget<Color = BinaryColor> {
+//     multi_tap: MultiTap<KEYPAD>,
+//     draw_target: DRAW_TARGET,
+//     text_input: TextInput<'a, BinaryColor>
+// }
+// 
+// impl <'a, KEYPAD, DRAW_TARGET>Menu<'a, KEYPAD, DRAW_TARGET> where KEYPAD: Keypad, DRAW_TARGET: DrawTarget<Color = BinaryColor> {
+//     pub fn new(keypad: KEYPAD, draw_target: DRAW_TARGET) -> Self {
+//         let mut buffer: [Option<multi_tap::Event>; 80] = [Default::default(); 80];
+//         let mut model = Model::new(&mut buffer);
+//         let mut multi_tap = MultiTap::new(keypad);
+//         let mut text_input = TextInput::new(
+//             &mut model,
+//             MonoTextStyleBuilder::new()
+//                 .font(&FONT_6X10)
+//                 .text_color(BinaryColor::On)
+//                 .background_color(BinaryColor::Off)
+//                 .build(),
+//             MonoTextStyleBuilder::new()
+//                 .font(&FONT_6X10)
+//                 .text_color(BinaryColor::Off)
+//                 .background_color(BinaryColor::On)
+//                 .build(),
+//         );
+// 
+// 	Self { multi_tap, draw_target, text_input }
+//     }
+// }

@@ -32,6 +32,7 @@ mod matrix;
 mod usb;
 
 use app::text_input::Model;
+use app::Menu;
 use buzzer::*;
 use matrix::*;
 use multi_tap::MultiTap;
@@ -71,27 +72,9 @@ async fn main(_spawner: Spawner) {
         Output::new(p.PIN_5, Level::High),
     );
 
-    let mut buffer: [Option<multi_tap::Event>; 80] = [Default::default(); 80];
-    let mut model = Model::new(&mut buffer);
-    let mut multi_tap = MultiTap::new(matrix);
-    let mut text_input = TextInput::new(
-        &mut model,
-        MonoTextStyleBuilder::new()
-            .font(&FONT_6X10)
-            .text_color(BinaryColor::On)
-            .background_color(BinaryColor::Off)
-            .build(),
-        MonoTextStyleBuilder::new()
-            .font(&FONT_6X10)
-            .text_color(BinaryColor::Off)
-            .background_color(BinaryColor::On)
-            .build(),
-    );
+    let mut menu = app::Menu::new(matrix, pcd8544);
 
     loop {
-        let event = multi_tap.event(Timer::after_secs(2)).await;
-        text_input.update(event);
-        text_input.draw(&mut pcd8544);
-        pcd8544.flush();
+	menu.process().await
     }
 }
