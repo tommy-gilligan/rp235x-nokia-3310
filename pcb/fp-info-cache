@@ -1,4 +1,4 @@
-23779708754782719
+23781437724842239
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -64133,6 +64133,13 @@ LED
 0
 2
 2
+LED_SMD
+RGBLED-reverse
+
+
+0
+4
+4
 LED_THT
 LED_BL-FL7680RGB
 'Piranha' RGB LED, through hole, common anode, 7.62x7.62mm, BGRA pin order, https://cdn-shop.adafruit.com/datasheets/BL-FL7680RGB.pdf

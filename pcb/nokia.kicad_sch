@@ -10291,6 +10291,12 @@
 		(uuid "146e8ead-4f6f-47e8-8118-93c506b7b751")
 	)
 	(junction
+		(at 200.66 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1a5947a0-0859-4d74-9498-bb900d6063a6")
+	)
+	(junction
 		(at 373.38 36.83)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10744,6 +10750,16 @@
 	)
 	(wire
 		(pts
+			(xy 200.66 129.54) (xy 208.28 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "095a9333-c661-4eba-9c76-4d044124af2f")
+	)
+	(wire
+		(pts
 			(xy 311.15 111.76) (xy 326.39 111.76)
 		)
 		(stroke
@@ -11131,6 +11147,16 @@
 			(type default)
 		)
 		(uuid "25ff976f-c8db-4202-a255-520fee4ac524")
+	)
+	(wire
+		(pts
+			(xy 201.93 110.49) (xy 200.66 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "264a03c9-048e-4d4c-8f34-04c8c255f3da")
 	)
 	(wire
 		(pts
@@ -11794,6 +11820,16 @@
 	)
 	(wire
 		(pts
+			(xy 218.44 129.54) (xy 242.57 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "610052d2-636b-4a75-a147-23940a44b35a")
+	)
+	(wire
+		(pts
 			(xy 177.8 264.16) (xy 175.26 264.16)
 		)
 		(stroke
@@ -11834,7 +11870,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 129.54) (xy 209.55 129.54)
+			(xy 186.69 129.54) (xy 185.42 129.54)
 		)
 		(stroke
 			(width 0)
@@ -11851,6 +11887,16 @@
 			(type default)
 		)
 		(uuid "68c39dca-835d-4b65-80c7-36e109a79ae7")
+	)
+	(wire
+		(pts
+			(xy 195.58 129.54) (xy 200.66 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "694d82f6-c064-4e2a-b83e-7543c55f8cdd")
 	)
 	(wire
 		(pts
@@ -12404,16 +12450,6 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 129.54) (xy 242.57 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "92be3834-15e1-4169-9ef3-a60f66d99f0c")
-	)
-	(wire
-		(pts
 			(xy 327.66 36.83) (xy 316.23 36.83)
 		)
 		(stroke
@@ -12771,6 +12807,16 @@
 			(type default)
 		)
 		(uuid "b22d9ffb-a21e-49bf-a463-83f898a622d1")
+	)
+	(wire
+		(pts
+			(xy 200.66 110.49) (xy 200.66 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b2d2527f-7024-4592-b436-6936b0c91c78")
 	)
 	(wire
 		(pts
@@ -13174,7 +13220,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 129.54) (xy 190.5 133.35)
+			(xy 179.07 129.54) (xy 179.07 133.35)
 		)
 		(stroke
 			(width 0)
@@ -13771,16 +13817,6 @@
 			(type default)
 		)
 		(uuid "f8548809-986e-43c1-b09c-71b43d0df71d")
-	)
-	(wire
-		(pts
-			(xy 193.04 129.54) (xy 190.5 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb62df2d-4bd1-4827-acb4-82c8c406de69")
 	)
 	(wire
 		(pts
@@ -14992,6 +15028,17 @@
 			(justify right bottom)
 		)
 		(uuid "ae65a6cc-1046-4139-a2f0-53e4f937d1d8")
+	)
+	(label "GPIO28"
+		(at 212.09 110.49 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ae8a7f7a-1e69-4bb7-a908-cb04a1220391")
 	)
 	(label "GPIO32"
 		(at 29.21 124.46 0)
@@ -17674,6 +17721,74 @@
 			(project "nokia"
 				(path "/3906e17f-1a23-46f4-8c63-f34176cde9d9"
 					(reference "C7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_2_Open")
+		(at 213.36 129.54 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "33d868ba-5af7-44b2-9568-8de700c42383")
+		(property "Reference" "JP1"
+			(at 213.36 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_2_Open"
+			(at 213.36 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 213.36 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 213.36 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 2-pole, open"
+			(at 213.36 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b54704d8-25c0-47fc-9149-42e56ed1c619")
+		)
+		(pin "2"
+			(uuid "4ab52649-1bad-48dd-99bd-efa801d68754")
+		)
+		(instances
+			(project ""
+				(path "/3906e17f-1a23-46f4-8c63-f34176cde9d9"
+					(reference "JP1")
 					(unit 1)
 				)
 			)
@@ -20659,7 +20774,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 196.85 129.54 270)
+		(at 182.88 129.54 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20667,7 +20782,7 @@
 		(dnp no)
 		(uuid "7b90e159-545b-40ee-ba70-2ff76007c2f6")
 		(property "Reference" "R6"
-			(at 196.85 124.2822 90)
+			(at 182.88 124.2822 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20675,7 +20790,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 196.85 126.5936 90)
+			(at 182.88 126.5936 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20683,7 +20798,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 196.85 127.762 90)
+			(at 182.88 127.762 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20692,7 +20807,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 196.85 129.54 0)
+			(at 182.88 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20701,7 +20816,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 196.85 129.54 0)
+			(at 182.88 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21065,6 +21180,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Jumper:Jumper_2_Open")
+		(at 207.01 110.49 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "81cd1168-0556-4c59-a35c-6c696746fae6")
+		(property "Reference" "JP2"
+			(at 207.01 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_2_Open"
+			(at 207.01 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 207.01 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 207.01 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 2-pole, open"
+			(at 207.01 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f1f33947-ca21-4adf-98e7-e622fc409814")
+		)
+		(pin "2"
+			(uuid "4dcfdaba-25d0-4455-b03e-5a166adcd023")
+		)
+		(instances
+			(project "nokia"
+				(path "/3906e17f-1a23-46f4-8c63-f34176cde9d9"
+					(reference "JP2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 64.77 116.84 180)
 		(unit 1)
@@ -21397,7 +21580,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 190.5 133.35 0)
+		(at 179.07 133.35 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -21405,7 +21588,7 @@
 		(dnp no)
 		(uuid "8bdce89d-803c-42f5-93c3-b3dfe24167f4")
 		(property "Reference" "#PWR024"
-			(at 190.5 139.7 0)
+			(at 179.07 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21414,7 +21597,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 186.69 134.62 0)
+			(at 175.26 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21422,7 +21605,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 133.35 0)
+			(at 179.07 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21431,7 +21614,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 133.35 0)
+			(at 179.07 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21440,7 +21623,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 133.35 0)
+			(at 179.07 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24442,7 +24625,7 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_Push")
-		(at 214.63 129.54 0)
+		(at 190.5 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -24450,7 +24633,7 @@
 		(dnp no)
 		(uuid "c8a035ce-9947-4bf0-902e-3273aa378ec1")
 		(property "Reference" "SW1"
-			(at 207.01 125.984 0)
+			(at 190.754 122.936 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24458,7 +24641,7 @@
 			)
 		)
 		(property "Value" "SW_Push"
-			(at 206.756 128.27 0)
+			(at 190.5 124.968 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24466,7 +24649,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_SMD:power switch"
-			(at 214.63 124.46 0)
+			(at 190.5 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24475,7 +24658,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 214.63 124.46 0)
+			(at 190.5 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24484,7 +24667,7 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
-			(at 214.63 129.54 0)
+			(at 190.5 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
