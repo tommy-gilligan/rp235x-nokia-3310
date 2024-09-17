@@ -1,24 +1,13 @@
 [workspace]
-members = ["embassy-keypad", "multi-tap", "pcd8544", "rtttl"]
+resolver = "2"
+members = ["embassy-keypad", "main", "multi-tap", "pcd8544", "rtttl"]
 
-[package]
-edition = "2021"
-name = "embassy-rp-examples"
-version = "0.1.0"
-license = "MIT OR Apache-2.0"
-
-[target.'cfg(target_family = "wasm")'.lib]
-crate-type = ["cdylib"]
-
-[target.'cfg(target = "thumbv6m-none-eabi")'.lib]
-crate-type = ["bin"]
-
-[dependencies]
+[workspace.dependencies]
 multi-tap = { path = "./multi-tap" }
 rtttl = { path = "./rtttl" }
 pcd8544 = { path = "./pcd8544" }
 
-embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
+embedded-hal = { version = "1.0" }
 embedded-hal-async = "1.0.0"
 defmt = "*"
 defmt-rtt = "*"
@@ -42,17 +31,6 @@ embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy.git", versio
 embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt"] }
 embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt", "integrated-timers"] }
 embassy-time = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "defmt-timestamp-uptime"] }
-
-
-[target.'cfg(target_family = "wasm")'.dependencies]
-embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["log"] }
-embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["arch-wasm", "executor-thread", "log", "integrated-timers"] }
-embassy-time = { version = "*", git = "https://github.com/embassy-rs/embassy.git", features = ["log", "wasm"] }
-wasm-logger = "*"
-wasm-bindgen = "*"
-web-sys = { version = "*", features = ["Document", "Element", "HtmlElement", "Node", "Window" ] }
-log = "*"
-critical-section = { version = "1.1", features = ["std"] }
 
 [profile.release]
 debug = 2

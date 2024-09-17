@@ -65,7 +65,7 @@ async fn main(_spawner: Spawner) {
     );
     pcd8544.init(&mut Delay).unwrap();
     pcd8544.set_contrast(64).unwrap();
-    pcd8544.invert_display(
+    pcd8544.invert_display(true);
 
     let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
 
@@ -169,13 +169,13 @@ async fn main(_spawner: Spawner) {
                             display_interface::DisplayError::OutOfBoundsError,
                         )) => {
                             println!("drawing out of bounds");
-                        }
+                        },
                         Err(_e) => {
                             // defmt::panic!("{:?}", e);
-                        }
-                        Ok(p) => {
-                            println!("{} {}", p.x, p.y);
-                      }                    }} match pcd8544.flush() { Err(display_interface::DisplayError::OutOfBoundsError) => {
+                        },
+                        Ok(p) => { println!("{} {}", p.x, p.y); }
+                    }
+                    match pcd8544.flush() { Err(display_interface::DisplayError::OutOfBoundsError) => {
                             println!("drawing out of bounds");
                         }
                         Err(_e) => {
@@ -191,4 +191,4 @@ async fn main(_spawner: Spawner) {
         ),
     )
     .await;
-
+}
