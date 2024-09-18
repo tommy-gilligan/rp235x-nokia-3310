@@ -1,20 +1,14 @@
+use app::keypad::Keypad;
 use embassy_time::Timer;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
-use web_sys::{Element, MouseEvent};
-use app::keypad::Keypad;
 
 use core::cell::RefCell;
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
 use std::rc::Rc;
-use web_sys::console;
 
-use std::cell::Cell;
-use app::keypad::*;
+use app::keypad::Button;
 
 struct DomB {
-    id: &'static str,
     was_clicked: bool,
 }
 
@@ -22,14 +16,11 @@ impl DomB {
     fn new(id: &'static str) -> Rc<RefCell<Self>> {
         let window = web_sys::window().expect("no global `window` exists");
         let document = window.document().expect("should have a document on window");
-        let mut s = Self {
-            id,
-            was_clicked: false,
-        };
+        let s = Self { was_clicked: false };
         let r = Rc::new(RefCell::new(s));
         let g = r.clone();
 
-        let closure = Closure::<dyn FnMut(_)>::new(move |event: web_sys::MouseEvent| {
+        let closure = Closure::<dyn FnMut(_)>::new(move |_event: web_sys::MouseEvent| {
             (*g).borrow_mut().was_clicked = true;
         });
 
@@ -67,7 +58,6 @@ pub struct DomKeypad {
     asterisk: Rc<RefCell<DomB>>,
     zero: Rc<RefCell<DomB>>,
     hash: Rc<RefCell<DomB>>,
-    last_event: Option<multi_tap::keypad::Event<Button>>,
 }
 
 impl DomKeypad {
@@ -106,7 +96,6 @@ impl DomKeypad {
             asterisk: DomB::new(asterisk_id),
             zero: DomB::new(zero_id),
             hash: DomB::new(hash_id),
-            last_event: None,
         }
     }
 }
@@ -116,7 +105,7 @@ unsafe impl Send for DomKeypad {}
 impl Keypad for DomKeypad {
     async fn event(&mut self) -> app::keypad::Event<Button> {
         loop {
-            Timer::after_millis(1).await;
+            Timer::after_millis(30).await;
             if (*self.cancel).borrow_mut().check() {
                 return app::keypad::Event::Down(Button::Cancel);
             } else if (*self.select).borrow_mut().check() {

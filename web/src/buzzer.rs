@@ -3,7 +3,7 @@ use web_sys::{AudioContext, OscillatorNode, OscillatorType};
 pub struct Buzzer(OscillatorNode);
 
 impl Buzzer {
-    pub fn new() -> Buzzer {
+    pub fn new() -> Self {
         let audio_context = AudioContext::new().unwrap();
         let oscillator = audio_context.create_oscillator().unwrap();
         oscillator.set_type(OscillatorType::Sine);
@@ -11,7 +11,7 @@ impl Buzzer {
             .connect_with_audio_node(&audio_context.destination())
             .unwrap();
 
-        Buzzer(oscillator)
+        Self(oscillator)
     }
 }
 

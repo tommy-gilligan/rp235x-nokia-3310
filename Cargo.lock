@@ -605,8 +605,6 @@ dependencies = [
  "embedded-graphics",
  "embedded-graphics-web-simulator",
  "log",
- "multi-tap",
- "rtttl",
  "wasm-bindgen",
  "wasm-logger",
  "web-sys",
