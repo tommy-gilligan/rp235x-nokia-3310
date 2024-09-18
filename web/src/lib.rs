@@ -7,7 +7,7 @@ use embassy_executor::Spawner;
 
 #[embassy_executor::task]
 async fn ticker() {
-    let mut menu = app::menu::Menu::new(
+    let mut snake = app::snake::Snake::new(
         keypad::DomKeypad::new(
             "cancel", "select", "up", "down", "one", "two", "three", "four", "five", "six",
             "seven", "eight", "nine", "asterisk", "zero", "hash",
@@ -16,7 +16,7 @@ async fn ticker() {
     );
 
     loop {
-        menu.process().await;
+        snake.process().await;
     }
 }
 

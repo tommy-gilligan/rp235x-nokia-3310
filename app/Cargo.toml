@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 embedded-graphics = { workspace = true }
+fastrand = { version = "2.1.1", default-features = false }
 multi-tap = { workspace = true }
