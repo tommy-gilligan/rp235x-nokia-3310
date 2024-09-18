@@ -26,12 +26,10 @@ impl<'a> Buzzer<'a> {
     }
 }
 
-impl <'a>app::buzzer::Buzzer for Buzzer<'a> {
-    fn enable(&mut self) {
-    }
+impl<'a> app::buzzer::Buzzer for Buzzer<'a> {
+    fn enable(&mut self) {}
 
-    fn disable(&mut self) {
-    }
+    fn disable(&mut self) {}
 
     fn set_frequency(&mut self, frequency: u32) {
         self.2 = frequency;

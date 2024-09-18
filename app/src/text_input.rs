@@ -62,8 +62,7 @@ where
         self.model.update(event);
     }
 
-    pub fn scroll_up(&mut self) {
-    }
+    pub fn scroll_up(&mut self) {}
 }
 
 impl<'a, C> Drawable for TextInput<'a, C>
@@ -83,17 +82,29 @@ where
         for event in &self.model.buffer[..(self.model.index + 1)] {
             match event {
                 Some(multi_tap::Event::Decided(c)) => {
-                    if self.style.measure_string(c.as_str(), point, Baseline::Top).next_position.x >= target.bounding_box().bottom_right().unwrap().x {
+                    if self
+                        .style
+                        .measure_string(c.as_str(), point, Baseline::Top)
+                        .next_position
+                        .x
+                        >= target.bounding_box().bottom_right().unwrap().x
+                    {
                         point.y = point.y + self.style.line_height() as i32;
                         point.x = 2;
                     }
 
-                    point =
-                        self.style
-                            .draw_string(c.as_str(), point, Baseline::Top, target)?;
+                    point = self
+                        .style
+                        .draw_string(c.as_str(), point, Baseline::Top, target)?;
                 }
                 Some(multi_tap::Event::Tentative(c)) => {
-                    if self.style.measure_string(c.as_str(), point, Baseline::Top).next_position.x >= target.bounding_box().bottom_right().unwrap().x {
+                    if self
+                        .style
+                        .measure_string(c.as_str(), point, Baseline::Top)
+                        .next_position
+                        .x
+                        >= target.bounding_box().bottom_right().unwrap().x
+                    {
                         point.y = point.y + self.style.line_height() as i32;
                         point.x = 2;
                     }
@@ -123,13 +134,13 @@ where
 //     mono_font::{MonoTextStyleBuilder, ascii::FONT_6X10},
 //     pixelcolor::BinaryColor
 // };
-// 
+//
 // struct Menu<'a, KEYPAD, DRAW_TARGET> where KEYPAD: Keypad, DRAW_TARGET: DrawTarget<Color = BinaryColor> {
 //     multi_tap: MultiTap<KEYPAD>,
 //     draw_target: DRAW_TARGET,
 //     text_input: TextInput<'a, BinaryColor>
 // }
-// 
+//
 // impl <'a, KEYPAD, DRAW_TARGET>Menu<'a, KEYPAD, DRAW_TARGET> where KEYPAD: Keypad, DRAW_TARGET: DrawTarget<Color = BinaryColor> {
 //     pub fn new(keypad: KEYPAD, draw_target: DRAW_TARGET) -> Self {
 //         let mut buffer: [Option<multi_tap::Event>; 80] = [Default::default(); 80];
@@ -148,7 +159,7 @@ where
 //                 .background_color(BinaryColor::On)
 //                 .build(),
 //         );
-// 
+//
 // 	Self { multi_tap, draw_target, text_input }
 //     }
 // }

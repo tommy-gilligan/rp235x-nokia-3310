@@ -32,12 +32,12 @@ mod matrix;
 mod usb;
 
 use app::text_input::Model;
+use app::text_input::TextInput;
 use app::Menu;
 use buzzer::*;
 use matrix::*;
 use multi_tap::MultiTap;
 use pcd8544::Driver as PCD8544;
-use app::text_input::TextInput;
 
 const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
 
@@ -75,6 +75,6 @@ async fn main(_spawner: Spawner) {
     let mut menu = app::Menu::new(matrix, pcd8544);
 
     loop {
-	menu.process().await
+        menu.process().await
     }
 }
