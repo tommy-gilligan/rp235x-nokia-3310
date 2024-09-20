@@ -1,9 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(ascii_char)]
-#![feature(ascii_char_variants)]
-#![feature(trivial_bounds)]
-#![feature(let_chains)]
 
 use core::cell::RefCell;
 use defmt::*;
@@ -33,7 +29,6 @@ mod usb;
 
 use app::text_input::Model;
 use app::text_input::TextInput;
-use app::Menu;
 use buzzer::*;
 use matrix::*;
 use multi_tap::MultiTap;
@@ -58,7 +53,7 @@ async fn main(_spawner: Spawner) {
     );
     pcd8544.init(&mut Delay).unwrap();
     pcd8544.set_contrast(64).unwrap();
-    // pcd8544.invert_display(true);
+    pcd8544.invert_display(true);
 
     let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
 
@@ -72,7 +67,7 @@ async fn main(_spawner: Spawner) {
         Output::new(p.PIN_5, Level::High),
     );
 
-    let mut menu = app::Menu::new(matrix, pcd8544);
+    let mut menu = app::snake::Snake::new(matrix, pcd8544);
 
     loop {
         menu.process().await

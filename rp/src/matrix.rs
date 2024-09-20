@@ -4,52 +4,10 @@ use embassy_rp::gpio;
 use embassy_time::Timer;
 use gpio::{Input, Output};
 
-use core::ascii::Char;
-use multi_tap::*;
-
-#[derive(Debug, PartialEq, Format, Copy, Clone)]
-pub enum Key {
-    Cancel,
-    Select,
-    Up,
-    Down,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
-    Asterisk,
-    Zero,
-    Hash,
-}
-
-impl From<Key> for Char {
-    fn from(key: Key) -> Char {
-        match key {
-            Key::One => Char::Digit1,
-            Key::Two => Char::CapitalA,
-            Key::Three => Char::CapitalD,
-            Key::Four => Char::CapitalG,
-            Key::Five => Char::CapitalJ,
-            Key::Six => Char::CapitalM,
-            Key::Seven => Char::CapitalP,
-            Key::Eight => Char::CapitalT,
-            Key::Nine => Char::CapitalW,
-            Key::Asterisk => Char::Asterisk,
-            Key::Zero => Char::Space,
-            Key::Hash => Char::NumberSign,
-            Key::Cancel => Char::Backspace,
-            _ => Char::Space,
-        }
-    }
-}
+use app::keypad::{Button, Keypad};
 
 pub struct Matrix<'a> {
-    last_event: Option<multi_tap::keypad::Event<Key>>,
+    last_event: Option<app::keypad::Event<Button>>,
     row_a: Input<'a>,
     row_b: Input<'a>,
     row_c: Input<'a>,
@@ -85,32 +43,32 @@ impl<'a> Matrix<'a> {
         }
     }
 
-    async fn base_event(&mut self) -> Option<multi_tap::keypad::Event<Key>> {
+    async fn base_event(&mut self) -> Option<app::keypad::Event<Button>> {
         let mut result = None;
 
         match self.last_event {
-            Some(multi_tap::keypad::Event::Down(b @ Key::One | b @ Key::Two | b @ Key::Three)) => {
+            Some(app::keypad::Event::Down(b @ Button::One | b @ Button::Two | b @ Button::Three)) => {
                 self.row_a.wait_for_low().await;
-                self.last_event = Some(multi_tap::keypad::Event::Up(b));
+                self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;
             }
-            Some(multi_tap::keypad::Event::Down(b @ Key::Four | b @ Key::Five | b @ Key::Six)) => {
+            Some(app::keypad::Event::Down(b @ Button::Four | b @ Button::Five | b @ Button::Six)) => {
                 self.row_b.wait_for_low().await;
-                self.last_event = Some(multi_tap::keypad::Event::Up(b));
+                self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;
             }
-            Some(multi_tap::keypad::Event::Down(
-                b @ Key::Seven | b @ Key::Eight | b @ Key::Nine,
+            Some(app::keypad::Event::Down(
+                b @ Button::Seven | b @ Button::Eight | b @ Button::Nine,
             )) => {
                 self.row_c.wait_for_low().await;
-                self.last_event = Some(multi_tap::keypad::Event::Up(b));
+                self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;
             }
-            Some(multi_tap::keypad::Event::Down(
-                b @ Key::Asterisk | b @ Key::Zero | b @ Key::Hash,
+            Some(app::keypad::Event::Down(
+                b @ Button::Asterisk | b @ Button::Zero | b @ Button::Hash,
             )) => {
                 self.row_d.wait_for_low().await;
-                self.last_event = Some(multi_tap::keypad::Event::Up(b));
+                self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;
             }
             _ => {}
@@ -130,9 +88,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_a.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::One))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::One))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::One));
+                    self.last_event = Some(app::keypad::Event::Down(Button::One));
                     result = self.last_event;
                 }
 
@@ -141,9 +99,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_a.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Two))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Two))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Two));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Two));
                     result = self.last_event;
                 }
 
@@ -152,9 +110,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_a.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Three))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Three))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Three));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Three));
                     result = self.last_event;
                 }
             }
@@ -164,9 +122,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_b.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Four))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Four))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Four));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Four));
                     result = self.last_event;
                 }
 
@@ -175,9 +133,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_b.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Five))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Five))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Five));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Five));
                     result = self.last_event;
                 }
 
@@ -186,9 +144,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_b.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Six))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Six))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Six));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Six));
                     result = self.last_event;
                 }
             }
@@ -198,9 +156,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_c.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Seven))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Seven))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Seven));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Seven));
                     result = self.last_event;
                 }
 
@@ -209,9 +167,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_c.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Eight))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Eight))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Eight));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Eight));
                     result = self.last_event;
                 }
 
@@ -220,9 +178,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_c.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Nine))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Nine))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Nine));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Nine));
                     result = self.last_event;
                 }
             }
@@ -232,9 +190,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_d.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Asterisk))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Asterisk))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Asterisk));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Asterisk));
                     result = self.last_event;
                 }
 
@@ -243,9 +201,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_d.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Zero))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Zero))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Zero));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Zero));
                     result = self.last_event;
                 }
 
@@ -254,9 +212,9 @@ impl<'a> Matrix<'a> {
                 Timer::after_nanos(10).await;
 
                 if self.row_d.is_high()
-                    && self.last_event != Some(multi_tap::keypad::Event::Down(Key::Hash))
+                    && self.last_event != Some(app::keypad::Event::Down(Button::Hash))
                 {
-                    self.last_event = Some(multi_tap::keypad::Event::Down(Key::Hash));
+                    self.last_event = Some(app::keypad::Event::Down(Button::Hash));
                     result = self.last_event;
                 }
             }
@@ -270,12 +228,10 @@ impl<'a> Matrix<'a> {
 }
 
 impl<'a> Keypad for Matrix<'a> {
-    type Button = Key;
-
-    async fn event(&mut self) -> multi_tap::keypad::Event<Key> {
+    async fn event(&mut self) -> app::keypad::Event<Button> {
         loop {
-            if let Some(multi_tap::keypad::Event::Down(e)) = self.base_event().await {
-                return multi_tap::keypad::Event::Down(e);
+            if let Some(app::keypad::Event::Down(e)) = self.base_event().await {
+                return app::keypad::Event::Down(e);
             }
         }
     }

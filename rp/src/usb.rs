@@ -1,4 +1,4 @@
-use core::ascii::Char;
+// use core::ascii::Char;
 use embassy_usb::{
     class::hid::{HidReader, HidReaderWriter, HidWriter},
     driver::Driver,
@@ -56,35 +56,35 @@ where
     (builder.build(), hid.split())
 }
 
-pub fn char_to_keycode(event: Char) -> KeyboardUsage {
-    match event {
-        Char::CapitalA => KeyboardUsage::KeyboardAa,
-        Char::CapitalB => KeyboardUsage::KeyboardBb,
-        Char::CapitalC => KeyboardUsage::KeyboardCc,
-        Char::CapitalD => KeyboardUsage::KeyboardDd,
-        Char::CapitalE => KeyboardUsage::KeyboardEe,
-        Char::CapitalF => KeyboardUsage::KeyboardFf,
-        Char::CapitalG => KeyboardUsage::KeyboardGg,
-        Char::CapitalH => KeyboardUsage::KeyboardHh,
-        Char::CapitalI => KeyboardUsage::KeyboardIi,
-        Char::CapitalJ => KeyboardUsage::KeyboardJj,
-        Char::CapitalK => KeyboardUsage::KeyboardKk,
-        Char::CapitalL => KeyboardUsage::KeyboardLl,
-        Char::CapitalM => KeyboardUsage::KeyboardMm,
-        Char::CapitalN => KeyboardUsage::KeyboardNn,
-        Char::CapitalO => KeyboardUsage::KeyboardOo,
-        Char::CapitalP => KeyboardUsage::KeyboardPp,
-        Char::CapitalQ => KeyboardUsage::KeyboardQq,
-        Char::CapitalR => KeyboardUsage::KeyboardRr,
-        Char::CapitalS => KeyboardUsage::KeyboardSs,
-        Char::CapitalT => KeyboardUsage::KeyboardTt,
-        Char::CapitalU => KeyboardUsage::KeyboardUu,
-        Char::CapitalV => KeyboardUsage::KeyboardVv,
-        Char::CapitalW => KeyboardUsage::KeyboardWw,
-        Char::CapitalX => KeyboardUsage::KeyboardXx,
-        Char::CapitalY => KeyboardUsage::KeyboardYy,
-        Char::CapitalZ => KeyboardUsage::KeyboardZz,
-        Char::Space => KeyboardUsage::KeyboardSpacebar,
-        _ => KeyboardUsage::KeyboardQq,
-    }
-}
+// pub fn char_to_keycode(event: Char) -> KeyboardUsage {
+//     match event {
+//         Char::CapitalA => KeyboardUsage::KeyboardAa,
+//         Char::CapitalB => KeyboardUsage::KeyboardBb,
+//         Char::CapitalC => KeyboardUsage::KeyboardCc,
+//         Char::CapitalD => KeyboardUsage::KeyboardDd,
+//         Char::CapitalE => KeyboardUsage::KeyboardEe,
+//         Char::CapitalF => KeyboardUsage::KeyboardFf,
+//         Char::CapitalG => KeyboardUsage::KeyboardGg,
+//         Char::CapitalH => KeyboardUsage::KeyboardHh,
+//         Char::CapitalI => KeyboardUsage::KeyboardIi,
+//         Char::CapitalJ => KeyboardUsage::KeyboardJj,
+//         Char::CapitalK => KeyboardUsage::KeyboardKk,
+//         Char::CapitalL => KeyboardUsage::KeyboardLl,
+//         Char::CapitalM => KeyboardUsage::KeyboardMm,
+//         Char::CapitalN => KeyboardUsage::KeyboardNn,
+//         Char::CapitalO => KeyboardUsage::KeyboardOo,
+//         Char::CapitalP => KeyboardUsage::KeyboardPp,
+//         Char::CapitalQ => KeyboardUsage::KeyboardQq,
+//         Char::CapitalR => KeyboardUsage::KeyboardRr,
+//         Char::CapitalS => KeyboardUsage::KeyboardSs,
+//         Char::CapitalT => KeyboardUsage::KeyboardTt,
+//         Char::CapitalU => KeyboardUsage::KeyboardUu,
+//         Char::CapitalV => KeyboardUsage::KeyboardVv,
+//         Char::CapitalW => KeyboardUsage::KeyboardWw,
+//         Char::CapitalX => KeyboardUsage::KeyboardXx,
+//         Char::CapitalY => KeyboardUsage::KeyboardYy,
+//         Char::CapitalZ => KeyboardUsage::KeyboardZz,
+//         Char::Space => KeyboardUsage::KeyboardSpacebar,
+//         _ => KeyboardUsage::KeyboardQq,
+//     }
+// }

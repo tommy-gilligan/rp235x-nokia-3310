@@ -1,6 +1,6 @@
 use core::future::Future;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum Button {
     Cancel,
     Select,
@@ -20,7 +20,7 @@ pub enum Button {
     Hash,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum Event<B> {
     Down(B),
     Up(B),
