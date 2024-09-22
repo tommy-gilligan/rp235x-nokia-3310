@@ -7,3 +7,5 @@ edition = "2021"
 embedded-graphics = { workspace = true }
 fastrand = { version = "2.1.1", default-features = false }
 multi-tap = { workspace = true }
+embassy-futures = { workspace = true }
+embassy-time = { workspace = true }
