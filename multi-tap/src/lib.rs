@@ -50,7 +50,7 @@ where
         // still emit the next tentative
         if let Some(pending) = self.pending {
             self.pending = None;
-            self.last_emitted = Some(pending.clone());
+            self.last_emitted = Some(pending);
             return pending;
         }
 
@@ -60,7 +60,7 @@ where
 
         if self.last_press.is_some() {
             match future::select(timeout_future, event_future).await {
-                Either::Left((_, _)) => {
+                Either::Left((..)) => {
                     if let Some(Event::Tentative(e)) = self.last_emitted {
                         self.last_emitted = None;
                         self.last_press = None;
@@ -93,29 +93,27 @@ where
                 }
                 Either::Right((keypad::Event::Up(_), _)) => {}
             }
-        } else {
-            if let keypad::Event::Down(e) = event_future.await {
-                if let Some(p) = &self.last_press
-                    && *p != e
-                {
-                    if let Some(Event::Tentative(f)) = self.last_emitted {
-                        self.last_emitted = Some(Event::Tentative(e.clone().into()));
-                        self.last_press = Some(e.clone());
-                        // TODO: panic if there is already a pending event
-                        self.pending = Some(Event::Tentative(e.clone().into()));
-
-                        return Event::Decided(f);
-                    }
-                } else {
+        } else if let keypad::Event::Down(e) = event_future.await {
+            if let Some(p) = &self.last_press
+                && *p != e
+            {
+                if let Some(Event::Tentative(f)) = self.last_emitted {
+                    self.last_emitted = Some(Event::Tentative(e.clone().into()));
                     self.last_press = Some(e.clone());
-                    self.last_emitted = match self.last_emitted {
-                        Some(Event::Tentative(c)) => Some(Event::Tentative(char::next_char(c))),
-                        Some(Event::Decided(_)) => None,
-                        None => Some(Event::Tentative(e.clone().into())),
-                    };
+                    // TODO: panic if there is already a pending event
+                    self.pending = Some(Event::Tentative(e.clone().into()));
 
-                    return self.last_emitted.unwrap();
+                    return Event::Decided(f);
                 }
+            } else {
+                self.last_press = Some(e.clone());
+                self.last_emitted = match self.last_emitted {
+                    Some(Event::Tentative(c)) => Some(Event::Tentative(char::next_char(c))),
+                    Some(Event::Decided(_)) => None,
+                    None => Some(Event::Tentative(e.clone().into())),
+                };
+
+                return self.last_emitted.unwrap();
             }
         }
 
@@ -125,9 +123,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use core::time::Duration;
+
     use tokio::time::sleep;
+
+    use super::*;
 
     #[derive(Debug, PartialEq, Format, Copy, Clone)]
     pub enum Key {

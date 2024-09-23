@@ -4,6 +4,7 @@
 // TODO: test
 
 use core::cmp;
+
 use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 use embedded_graphics_core::{
     draw_target::DrawTarget,
@@ -39,7 +40,7 @@ where
 {
     display_interface: DI,
     reset: RST,
-    buffer: [u8; WIDTH * HEIGHT >> 3],
+    buffer: [u8; (WIDTH * HEIGHT) >> 3],
 }
 
 impl<DI, RST, PinE> Driver<DI, RST, PinE>
@@ -51,7 +52,7 @@ where
         Self {
             display_interface,
             reset,
-            buffer: [0x00; WIDTH * HEIGHT >> 3],
+            buffer: [0x00; (WIDTH * HEIGHT) >> 3],
         }
     }
 

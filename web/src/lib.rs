@@ -13,6 +13,7 @@ async fn ticker() {
             "seven", "eight", "nine", "asterisk", "zero", "hash",
         ),
         display::Display::new(),
+        (web_sys::js_sys::Math::random() * (u64::MAX as f64)) as u64
     );
 
     loop {

@@ -47,9 +47,9 @@ impl FromStr for NoteName {
 pub struct Note(u32, NoteName, u32, bool);
 
 impl Note {
-    pub fn new<'a>(text: &'a str, default_octave: u32, default_duration: u32) -> Self {
-        let mut n = text.trim();
-        let mut find_name = n.match_indices(|c: char| !c.is_digit(10));
+    pub fn new(text: &str, default_octave: u32, default_duration: u32) -> Self {
+        let n = text.trim();
+        let mut find_name = n.match_indices(|c: char| !c.is_ascii_digit());
         let (name_index, name) = find_name.next().unwrap();
 
         Note(

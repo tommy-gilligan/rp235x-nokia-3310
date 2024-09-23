@@ -1,8 +1,9 @@
-use embedded_graphics::pixelcolor::BinaryColor;
-use embedded_graphics::prelude::Dimensions;
-use embedded_graphics::prelude::DrawTarget;
-use embedded_graphics::primitives::Rectangle;
-use embedded_graphics::Pixel;
+use embedded_graphics::{
+    pixelcolor::BinaryColor,
+    prelude::{Dimensions, DrawTarget},
+    primitives::Rectangle,
+    Pixel,
+};
 use embedded_graphics_web_simulator::{
     display::WebSimulatorDisplay, output_settings::OutputSettingsBuilder,
 };

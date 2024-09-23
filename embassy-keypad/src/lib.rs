@@ -278,10 +278,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::{KeyPress, Keypad};
     use embedded_hal_mock::eh1::digital::{
         Mock as PinMock, State as PinState, Transaction as PinTransaction,
     };
+
+    use super::{KeyPress, Keypad};
 
     // TODO: improve test. Probably dependent on e-h-m improvements
     #[tokio::test]

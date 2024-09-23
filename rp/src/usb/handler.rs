@@ -1,4 +1,5 @@
 use core::sync::atomic::{AtomicBool, Ordering};
+
 use defmt::info;
 use embassy_usb::{
     class::hid::{ReportId, RequestHandler},

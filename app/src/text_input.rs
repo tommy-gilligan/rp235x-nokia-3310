@@ -1,7 +1,6 @@
 use embedded_graphics::{
     mono_font::MonoTextStyle,
-    prelude::DrawTarget,
-    prelude::*,
+    prelude::{DrawTarget, *},
     text::{renderer::TextRenderer, Baseline},
     Drawable,
 };
@@ -89,7 +88,7 @@ where
                         .x
                         >= target.bounding_box().bottom_right().unwrap().x
                     {
-                        point.y = point.y + self.style.line_height() as i32;
+                        point.y += self.style.line_height() as i32;
                         point.x = 2;
                     }
 
@@ -105,7 +104,7 @@ where
                         .x
                         >= target.bounding_box().bottom_right().unwrap().x
                     {
-                        point.y = point.y + self.style.line_height() as i32;
+                        point.y += self.style.line_height() as i32;
                         point.x = 2;
                     }
 
@@ -120,7 +119,7 @@ where
             }
         }
 
-        return Ok(point);
+        Ok(point)
     }
 }
 

@@ -1,12 +1,9 @@
-use app::keypad::Keypad;
-use embassy_time::Timer;
-use wasm_bindgen::closure::Closure;
-use wasm_bindgen::JsCast;
-
 use core::cell::RefCell;
 use std::rc::Rc;
 
-use app::keypad::Button;
+use app::keypad::{Button, Keypad};
+use embassy_time::Timer;
+use wasm_bindgen::{closure::Closure, JsCast};
 
 struct DomB {
     was_clicked: bool,

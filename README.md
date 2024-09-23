@@ -52,13 +52,16 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - power from battery
 
 #### Software
-- finish no_std RTTTL parsing library and release
 - use embedded_graphics for console display
+- finish no_std RTTTL parsing library and release
 - create example that plays RTTTL (and writes it to screen)
+- app framework
+    - buzzer
+    - usb
+    - vibration
 - test fake keypresses to create multi-tap converter
-- interface with optional pico-w to expose keypad as bluetooth keyboard (speaker for notifications)
 - read/write to sim card
-- virtual device
+- interface with optional pico-w to expose keypad as bluetooth keyboard (speaker for notifications)
 
 #### Misc
 - Come up with better name

@@ -6,4 +6,5 @@ pub mod keypad;
 pub mod menu;
 pub mod snake;
 
+pub mod grid;
 pub mod text_input;

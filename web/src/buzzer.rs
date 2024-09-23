@@ -17,15 +17,16 @@ impl Buzzer {
 
 impl app::buzzer::Buzzer for Buzzer {
     fn enable(&mut self) {
-        self.0.start();
+        let _ = self.0.start();
     }
 
     fn disable(&mut self) {
-        self.0.stop();
+        let _ = self.0.stop();
     }
 
     fn set_frequency(&mut self, frequency: u32) {
-        self.0
+        let _ = self
+            .0
             .frequency()
             .set_value_at_time(frequency as f32, self.0.context().current_time());
     }

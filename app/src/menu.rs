@@ -1,13 +1,12 @@
-use crate::keypad::Keypad;
-use crate::text_input::{Model, TextInput};
-use embedded_graphics::primitives::PrimitiveStyle;
-use embedded_graphics::primitives::Rectangle;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyle, MonoTextStyleBuilder},
+    mono_font::{ascii::FONT_6X10, MonoTextStyle},
     pixelcolor::BinaryColor,
     prelude::*,
+    primitives::{PrimitiveStyle, Rectangle},
     text::{Alignment, Text},
 };
+
+use crate::keypad::Keypad;
 
 pub struct Menu<'a, KEYPAD, DRAW_TARGET>
 where
@@ -20,7 +19,7 @@ where
     index: usize,
 }
 
-const MENU_ITEMS: [&'static str; 3] = ["Text Input", "Music", "Snake"];
+const MENU_ITEMS: [&str; 3] = ["Text Input", "Music", "Snake"];
 
 impl<'a, KEYPAD, DRAW_TARGET> Menu<'a, KEYPAD, DRAW_TARGET>
 where
@@ -42,21 +41,21 @@ where
         let bounding_box = self.draw_target.bounding_box();
         let top_left = bounding_box.top_left;
 
-        bounding_box
+        let _ = bounding_box
             .into_styled(PrimitiveStyle::with_fill(BinaryColor::On))
             .draw(&mut self.draw_target);
 
-        for (index, item) in self.items.into_iter().enumerate() {
+        for (index, item) in self.items.iter().enumerate() {
             let y_offset: i32 = (index * 10).try_into().unwrap();
             if self.index == index {
-                Rectangle::new(
+                let _ = Rectangle::new(
                     top_left + Point::new(0, y_offset + 2),
                     Size::new(self.draw_target.bounding_box().size.width, 11),
                 )
                 .into_styled(PrimitiveStyle::with_fill(BinaryColor::Off))
                 .draw(&mut self.draw_target);
 
-                Text::with_alignment(
+                let _ = Text::with_alignment(
                     item,
                     top_left + Point::new(0, 10) + Point::new(0, y_offset),
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::On),
@@ -64,7 +63,7 @@ where
                 )
                 .draw(&mut self.draw_target);
             } else {
-                Text::with_alignment(
+                let _ = Text::with_alignment(
                     item,
                     top_left + Point::new(0, 10) + Point::new(0, y_offset),
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::Off),

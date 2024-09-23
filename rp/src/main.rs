@@ -2,36 +2,26 @@
 #![no_main]
 
 use core::cell::RefCell;
-use defmt::*;
+
+use defmt_rtt as _;
 use display_interface_spi::SPIInterface;
 use embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig;
 use embassy_executor::Spawner;
-use embassy_futures::join::join;
 use embassy_rp::{
-    bind_interrupts,
     gpio::{Input, Level, Output, Pull},
-    peripherals::USB,
     pwm::{Config, Pwm},
     spi::{self, Spi},
 };
 use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
-use embassy_time::{Delay, Timer};
-use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
-    pixelcolor::BinaryColor,
-    Drawable,
-};
-use {defmt_rtt as _, panic_probe as _};
+use embassy_time::Delay;
+use panic_probe as _;
 
 mod buzzer;
 mod matrix;
 mod usb;
 
-use app::text_input::Model;
-use app::text_input::TextInput;
 use buzzer::*;
 use matrix::*;
-use multi_tap::MultiTap;
 use pcd8544::Driver as PCD8544;
 
 const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";

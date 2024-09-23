@@ -16,7 +16,7 @@ impl<'a> Song<'a> {
     pub fn new(text: &'a str) -> Self {
         let mut split = text.splitn(3, ':');
         let title = split.next().unwrap().trim();
-        let mut settings = split.next().unwrap().trim().splitn(3, ',').map(|setting| {
+        let settings = split.next().unwrap().trim().splitn(3, ',').map(|setting| {
             let s = setting.split_once("=").unwrap();
             Some((s.0.trim(), s.1.trim()))
         });
@@ -61,13 +61,13 @@ impl<'a> Song<'a> {
 mod test {
     use super::*;
 
-    const HAUNTED_HOUSE: &'static str = "HauntHouse: d=4,o=5,b=108: 2a4, 2e, 2d#, 2b4, 2a4, 2c, 2d, 2a#4, 2e., e, 1f4, 1a4, 1d#, 2e., d, 2c., b4, 1a4, 1p, 2a4, 2e, 2d#, 2b4, 2a4, 2c, 2d, 2a#4, 2e., e, 1f4, 1a4, 1d#, 2e., d, 2c., b4, 1a4";
-    const COUNTDOWN: &'static str = "countdown:d=4, o=5, b=125:p, 8p, 16b, 16a, b, e, p, 8p, 16c6, 16b, 8c6, 8b, a, p, 8p, 16c6, 16b, c6, e, p, 8p, 16a, 16g, 8a, 8g, 8f#, 8a, g., 16f#, 16g, a., 16g, 16a, 8b, 8a, 8g, 8f#, e, c6, 2b., 16b, 16c6, 16b, 16a, 1b";
-    const MISSION: &'static str = "Mission:d=4, o=6, b=100:32d, 32d#, 32d, 32d#, 32d, 32d#, 32d, 32d#, 32d, 32d, 32d#, 32e, 32f, 32f#, 32g, 16g, 8p, 16g, 8p, 16a#, 16p, 16c, 16p, 16g, 8p, 16g, 8p, 16f, 16p, 16f#, 16p, 16g, 8p, 16g, 8p, 16a#, 16p, 16c, 16p, 16g, 8p, 16g, 8p, 16f, 16p, 16f#, 16p, 16a#, 16g, 2d, 32p, 16a#, 16g, 2c#, 32p, 16a#, 16g, 2c, 16p, 16a#5, 16c";
+    const HAUNTED_HOUSE: &str = "HauntHouse: d=4,o=5,b=108: 2a4, 2e, 2d#, 2b4, 2a4, 2c, 2d, 2a#4, 2e., e, 1f4, 1a4, 1d#, 2e., d, 2c., b4, 1a4, 1p, 2a4, 2e, 2d#, 2b4, 2a4, 2c, 2d, 2a#4, 2e., e, 1f4, 1a4, 1d#, 2e., d, 2c., b4, 1a4";
+    const COUNTDOWN: &str = "countdown:d=4, o=5, b=125:p, 8p, 16b, 16a, b, e, p, 8p, 16c6, 16b, 8c6, 8b, a, p, 8p, 16c6, 16b, c6, e, p, 8p, 16a, 16g, 8a, 8g, 8f#, 8a, g., 16f#, 16g, a., 16g, 16a, 8b, 8a, 8g, 8f#, e, c6, 2b., 16b, 16c6, 16b, 16a, 1b";
+    const MISSION: &str = "Mission:d=4, o=6, b=100:32d, 32d#, 32d, 32d#, 32d, 32d#, 32d, 32d#, 32d, 32d, 32d#, 32e, 32f, 32f#, 32g, 16g, 8p, 16g, 8p, 16a#, 16p, 16c, 16p, 16g, 8p, 16g, 8p, 16f, 16p, 16f#, 16p, 16g, 8p, 16g, 8p, 16a#, 16p, 16c, 16p, 16g, 8p, 16g, 8p, 16f, 16p, 16f#, 16p, 16a#, 16g, 2d, 32p, 16a#, 16g, 2c#, 32p, 16a#, 16g, 2c, 16p, 16a#5, 16c";
 
     #[test]
     fn test_countdown() {
-        let mut song = Song::new(COUNTDOWN);
+        let song = Song::new(COUNTDOWN);
 
         assert_eq!(song.title, "countdown");
         assert_eq!(song.duration, 4);
@@ -77,7 +77,7 @@ mod test {
 
     #[test]
     fn test_song() {
-        let mut song = Song::new(HAUNTED_HOUSE);
+        let song = Song::new(HAUNTED_HOUSE);
 
         assert_eq!(song.title, "HauntHouse");
         assert_eq!(song.duration, 4);
@@ -87,7 +87,7 @@ mod test {
 
     #[test]
     fn test_mission() {
-        let mut song = Song::new(MISSION);
+        let song = Song::new(MISSION);
 
         assert_eq!(song.title, "Mission");
         assert_eq!(song.duration, 4);

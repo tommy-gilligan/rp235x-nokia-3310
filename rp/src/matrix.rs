@@ -1,10 +1,8 @@
-use defmt::Format;
+use app::keypad::{Button, Keypad};
 use embassy_futures::select::{select4, Either4};
 use embassy_rp::gpio;
 use embassy_time::Timer;
 use gpio::{Input, Output};
-
-use app::keypad::{Button, Keypad};
 
 pub struct Matrix<'a> {
     last_event: Option<app::keypad::Event<Button>>,
@@ -47,12 +45,16 @@ impl<'a> Matrix<'a> {
         let mut result = None;
 
         match self.last_event {
-            Some(app::keypad::Event::Down(b @ Button::One | b @ Button::Two | b @ Button::Three)) => {
+            Some(app::keypad::Event::Down(
+                b @ Button::One | b @ Button::Two | b @ Button::Three,
+            )) => {
                 self.row_a.wait_for_low().await;
                 self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;
             }
-            Some(app::keypad::Event::Down(b @ Button::Four | b @ Button::Five | b @ Button::Six)) => {
+            Some(app::keypad::Event::Down(
+                b @ Button::Four | b @ Button::Five | b @ Button::Six,
+            )) => {
                 self.row_b.wait_for_low().await;
                 self.last_event = Some(app::keypad::Event::Up(b));
                 return self.last_event;

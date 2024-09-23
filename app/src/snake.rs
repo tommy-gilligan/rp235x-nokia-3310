@@ -1,21 +1,26 @@
-use crate::keypad::{Keypad, Button, Event};
-use crate::text_input::{Model, TextInput};
-use embedded_graphics::primitives::PrimitiveStyle;
-use embedded_graphics::primitives::Rectangle;
+use embassy_futures::select::Either;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_4X6, MonoTextStyle, MonoTextStyleBuilder},
+    draw_target::DrawTarget,
+    geometry::{Point, Size},
+    image::ImageDrawable,
+    mono_font::{ascii::FONT_4X6, MonoTextStyle},
     pixelcolor::BinaryColor,
     prelude::*,
-    text::{Alignment, Text},
+    primitives::{Line, PrimitiveStyle, Rectangle},
+    text::Text,
 };
-use embedded_graphics::Pixel;
-use embedded_graphics::geometry::Point;
-use embedded_graphics::primitives::Line;
-use embedded_graphics::text::TextStyleBuilder;
-use embassy_futures::select::{Either, select};
-mod model;
-use model::Direction;
-use model::Cell;
+use numtoa::NumToA;
+
+use crate::{
+    grid::{Direction, Grid},
+    keypad::{Button, Event, Keypad},
+};
+mod cell;
+use cell::Cell;
+
+pub struct World<const ROWS: usize, const COLS: usize> {
+    pub grid: Grid<Cell, ROWS, COLS>,
+}
 
 pub struct Snake<KEYPAD, DRAW_TARGET>
 where
@@ -24,7 +29,9 @@ where
 {
     keypad: KEYPAD,
     draw_target: DRAW_TARGET,
-    world: model::World
+    grid: Grid<Cell, 9, 20>,
+    score: u16,
+    first_draw: bool,
 }
 
 impl<KEYPAD, DRAW_TARGET> Snake<KEYPAD, DRAW_TARGET>
@@ -32,248 +39,62 @@ where
     KEYPAD: Keypad,
     DRAW_TARGET: DrawTarget<Color = BinaryColor>,
 {
-    pub fn new(keypad: KEYPAD, draw_target: DRAW_TARGET) -> Self {
-        let world = model::World::new();
+    pub fn new(keypad: KEYPAD, draw_target: DRAW_TARGET, seed: u64) -> Self {
+        let mut grid = Grid::new(seed);
+        grid[(0, 0)] = Some(Cell::Food);
+        grid[(1, 0)] = Some(Cell::Food);
+        grid[(1, 1)] = Some(Cell::Food);
+
         Self {
             keypad,
             draw_target,
-            world
+            grid,
+            score: 0,
+            first_draw: true,
         }
     }
 
     fn draw(&mut self) {
-	for (row_index, row) in self.world.0.0.into_iter().enumerate() {
-            for (column_index, cell) in row.0.into_iter().enumerate() {
-                let fill = PrimitiveStyle::with_fill(BinaryColor::On);
-                Rectangle::new(
-                    Point::new(
-                        4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                        4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10
-                    ),
-                    Size::new(4, 4)
-                ).into_styled(fill).draw(&mut self.draw_target);
-
-                let color = match cell {
-                    Cell::Empty => { },
-                    Cell::Critter(direction, _) => {
-                        match direction {
-                            Direction::Left => {
-                                Rectangle::new(
-                                    Point::new(
-                                        4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 0,
-                                        4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11
-                                    ),
-                                    Size::new(4, 2)
-                                ).into_styled(
-                                    PrimitiveStyle::with_fill(BinaryColor::Off)
-                                ).draw(&mut self.draw_target);
-                            },
-                            Direction::Right => {
-                                Rectangle::new(
-                                    Point::new(
-                                        4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 0,
-                                        4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11
-                                    ),
-                                    Size::new(4, 2)
-                                ).into_styled(
-                                    PrimitiveStyle::with_fill(BinaryColor::Off)
-                                ).draw(&mut self.draw_target);
-                            },
-                            Direction::Up => {
-                                Rectangle::new(
-                                    Point::new(
-                                        4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                                        4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 9
-                                    ),
-                                    Size::new(2, 4)
-                                ).into_styled(
-                                    PrimitiveStyle::with_fill(BinaryColor::Off)
-                                ).draw(&mut self.draw_target);
-                            },
-                            Direction::Down => {
-                                Rectangle::new(
-                                    Point::new(
-                                        4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                                        4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 9
-                                    ),
-                                    Size::new(2, 4)
-                                ).into_styled(
-                                    PrimitiveStyle::with_fill(BinaryColor::Off)
-                                ).draw(&mut self.draw_target);
-                            }
-                        }
-                        Rectangle::new(
-                            Point::new(
-                                4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                                4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11
-                            ),
-                            Size::new(2, 2)
-                        ).into_styled(
-                            PrimitiveStyle::with_fill(BinaryColor::Off)
-                        ).draw(&mut self.draw_target);
-                    },
-                    Cell::Food => {
-                        let _ = Pixel(
-                            Point::new(
-		        	4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 4i32,
-		        	4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 12i32
-                            ),
-                            BinaryColor::Off
-                        ).draw(&mut self.draw_target);
-                        let _ = Pixel(
-                            Point::new(
-		        	4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 4i32,
-		        	4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10i32
-                            ),
-                            BinaryColor::Off
-                        ).draw(&mut self.draw_target);
-                        let _ = Pixel(
-                            Point::new(
-		        	4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 3i32,
-		        	4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                            ),
-                            BinaryColor::Off
-                        ).draw(&mut self.draw_target);
-                        let _ = Pixel(
-                            Point::new(
-		        	4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 5i32,
-		        	4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                            ),
-                            BinaryColor::Off
-                        ).draw(&mut self.draw_target);
-                    }
-                };
-            }
+        if self.first_draw {
+            self.first_draw = false;
+            self.draw_border();
+            self.draw_score();
         }
-
-        self.draw_border();
-        self.draw_score();
-        self.draw_head();
-    }
-
-    fn draw_head(&mut self) {
-        let head_index = self.world.1;
-        let row_index = head_index.0;
-        let column_index = head_index.1;
-        let fill = PrimitiveStyle::with_fill(BinaryColor::Off);
-        if let Cell::Critter(head_direction, _) = self.world.0.0[row_index].0[column_index] {
-            match head_direction {
-                Direction::Left => {
-                    Rectangle::new(
-                        Point::new(
-                            4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                            4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11
-                        ),
-                        Size::new(4, 2)
-                    ).into_styled(fill).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 4i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                        ),
-                        BinaryColor::On
-                    ).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 4i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10i32
-                        ),
-                        BinaryColor::Off
-                    ).draw(&mut self.draw_target);
-                },
-                Direction::Right => {
-                    Rectangle::new(
-                        Point::new(
-                            4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                            4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11
-                        ),
-                        Size::new(4, 2)
-                    ).into_styled(fill).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 3i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                        ),
-                        BinaryColor::On
-                    ).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 3i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10i32
-                        ),
-                        BinaryColor::Off
-                    ).draw(&mut self.draw_target);
-                },
-                Direction::Down => {
-                    Rectangle::new(
-                        Point::new(
-                            4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                            4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10
-                        ),
-                        Size::new(2, 4)
-                    ).into_styled(fill).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                        ),
-                        BinaryColor::On
-                    ).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 1i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 11i32
-                        ),
-                        BinaryColor::Off
-                    ).draw(&mut self.draw_target);
-                },
-                Direction::Up => {
-                    Rectangle::new(
-                        Point::new(
-                            4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2,
-                            4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 10
-                        ),
-                        Size::new(2, 4)
-                    ).into_styled(fill).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 2i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 12i32
-                        ),
-                        BinaryColor::On
-                    ).draw(&mut self.draw_target);
-                    let _ = Pixel(
-                        Point::new(
-		    	    4 * <usize as TryInto<i32>>::try_into(column_index).unwrap() + 1i32,
-		    	    4 * <usize as TryInto<i32>>::try_into(row_index).unwrap() + 12i32
-                        ),
-                        BinaryColor::Off
-                    ).draw(&mut self.draw_target);
-                },
-            }
-        }
+        let _ = self
+            .grid
+            .translate(Point::new(2, 10))
+            .draw(&mut self.draw_target);
     }
 
     fn draw_score(&mut self) {
+        let mut buffer = [0u8; 5];
+
         let style = MonoTextStyle::new(&FONT_4X6, BinaryColor::Off);
-        let text = Text::new("8056", Point::new(1, 4), style)
+        let s: &str = core::str::from_utf8(self.score.numtoa(10, &mut buffer)).unwrap();
+
+        let t = Text::new(s, Point::new(1, 4), style);
+        let fill = PrimitiveStyle::with_fill(BinaryColor::On);
+        let _ = t
+            .bounding_box()
+            .into_styled(fill)
             .draw(&mut self.draw_target);
+        let _ = t.draw(&mut self.draw_target);
     }
 
     fn draw_border(&mut self) {
         let thin_stroke = PrimitiveStyle::with_stroke(BinaryColor::Off, 1);
 
-        Rectangle::new(
-            Point::new(0, 8),
-            Size::new(84, 40)
-        ).into_styled(thin_stroke).draw(&mut self.draw_target);
+        let _ = Rectangle::new(Point::new(0, 8), Size::new(84, 40))
+            .into_styled(thin_stroke)
+            .draw(&mut self.draw_target);
 
-        Line::new(Point::new(0, 6), Point::new(83, 6))
+        let _ = Line::new(Point::new(0, 6), Point::new(83, 6))
             .into_styled(thin_stroke)
             .draw(&mut self.draw_target);
     }
 
     pub async fn process(&mut self) {
+        self.draw();
         let event_future = self.keypad.event();
         let timeout_future = embassy_time::Timer::after_millis(100);
 
@@ -283,27 +104,98 @@ where
             Either::First(Event::Down(Button::Six)) => Direction::Right,
             Either::First(Event::Down(Button::Eight)) => Direction::Down,
             _ => {
-                let head_index = self.world.1;
-                if let Cell::Critter(head_direction, _) = self.world.0.0[head_index.0].0[head_index.1] {
-                    head_direction
-                } else {
-                    Direction::Down
-                }
+                // if let Some(Cell::Critter(head_direction)) = self.grid[self.head_index]
+                // {
+                //     head_direction
+                // } else {
+                //     Direction::Down
+                // }
+                Direction::Down
             }
         };
-        self.world.update(direction);
-        self.draw();
+
+        // updating the model should give a list of cells to redraw
+        // let (cell_to_clear, body_now, collision) = self.update(direction);
+    }
+
+    fn release(self) -> DRAW_TARGET {
+        self.draw_target
     }
 }
 
-fn pattern(x: i32, y: i32, c: BinaryColor) -> BinaryColor {
-    if c == BinaryColor::Off {
-        if ((y % 3) + x) % 3 == 0 {
-            BinaryColor::On
-        } else {
-            BinaryColor::Off
+#[cfg(test)]
+mod test {
+    use embedded_graphics::mock_display::MockDisplay;
+
+    use super::*;
+    struct TestKeypad;
+
+    impl Keypad for TestKeypad {
+        async fn event(&mut self) -> Event<Button> {
+            embassy_time::Timer::after_millis(100).await;
+            Event::Down(Button::Down)
         }
-    } else {
-        BinaryColor::On
+    }
+
+    #[test]
+    fn test_draw() {
+        let mut display = MockDisplay::new();
+        display.set_allow_out_of_bounds_drawing(true);
+        // TODO: set false to find overdraws
+        display.set_allow_overdraw(true);
+        let mut snake = Snake::new(TestKeypad, display, 0);
+        snake.grid.place_randomly(Cell::Food);
+        snake.draw();
+
+        snake.release().assert_pattern(&[
+            " #.##                                                           ",
+            " .#.#                                                           ",
+            " ...#                                                           ",
+            " .#.#                                                           ",
+            " #.##                                                           ",
+            " ####                                                           ",
+            "................................................................",
+            "                                                                ",
+            "................................................................",
+            ".                                                               ",
+            ". #.############################################################",
+            ". .#.###########################################################",
+            ". #.############################################################",
+            ". ##############################################################",
+            ". #.###.########################################################",
+            ". .#.#.#.#######################################################",
+            ". #.###.########################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". #####################################.########################",
+            ". ####################################.#.#######################",
+            ". #####################################.########################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ". ##############################################################",
+            ".                                                               ",
+            "................................................................",
+        ]);
     }
 }

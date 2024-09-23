@@ -4,7 +4,7 @@ use embassy_usb::{
     driver::Driver,
     Builder, Config, UsbDevice,
 };
-use usbd_hid::descriptor::{KeyboardReport, KeyboardUsage, SerializedDescriptor};
+use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
 
 mod handler;
 pub use handler::*;
