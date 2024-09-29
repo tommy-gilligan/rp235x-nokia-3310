@@ -8,3 +8,4 @@ pub mod snake;
 
 pub mod grid;
 pub mod text_input;
+pub mod otp;

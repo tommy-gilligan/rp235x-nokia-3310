@@ -26,9 +26,18 @@ use pcd8544::Driver as PCD8544;
 
 const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
 
+use embassy_rp::rtc::{DateTime, DayOfWeek, Rtc};
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
+    let mut rtc = Rtc::new(p.RTC);
+
+    if !rtc.is_running() {
+        let now = chrono::naive::NaiveDateTime::from_timestamp(1727617276744 / 1000, 0);
+        rtc.set_datetime(now).unwrap();
+    }
+
 
     let mut config = spi::Config::default();
     config.frequency = 4_000_000;
@@ -57,7 +66,8 @@ async fn main(_spawner: Spawner) {
         Output::new(p.PIN_5, Level::High),
     );
 
-    let mut menu = app::snake::Snake::new(matrix, pcd8544);
+    // let c = ;
+    let mut menu = app::otp::Otp::new(matrix, pcd8544, 0, || rtc.now().unwrap().and_utc().timestamp().try_into().unwrap());
 
     loop {
         menu.process().await
