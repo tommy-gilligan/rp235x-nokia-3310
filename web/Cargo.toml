@@ -20,6 +20,7 @@ log = { workspace = true }
 
 embedded-graphics-web-simulator = { workspace = true }
 embedded-graphics = { workspace = true }
+multi-tap = { path = "../multi-tap" }
 
 [lints.clippy]
 alloc_instead_of_core = "deny"

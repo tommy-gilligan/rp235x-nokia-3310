@@ -44,7 +44,6 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 #### Hardware
 - update render (included more 3d models: U1, U5, L1, power button)
 - 2 pinouts: prototype vs fascimile
-- preliminary BoM
 - detect battery type to refuse NiMH
 - LiPo charging
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
