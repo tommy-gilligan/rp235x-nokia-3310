@@ -26,7 +26,7 @@ display-interface-spi = { workspace = true }
 display-interface = { workspace = true }
 
 embassy-embedded-hal = { workspace = true }
-embassy-rp = { workspace = true, features = ["chrono"] }
+embassy-rp = { workspace = true, features = ["chrono", "defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"] }
 embassy-usb = { workspace = true }
 embassy-futures = { workspace = true }
 embassy-usb-logger = { workspace = true }
@@ -35,6 +35,7 @@ embassy-sync = { workspace = true, features = ["defmt"] }
 embassy-executor = { workspace = true, features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt", "integrated-timers"] }
 embassy-time = { workspace = true, features = ["defmt", "defmt-timestamp-uptime"] }
 chrono = { version = "0.4", default-features = false }
+heapless = "0.8"
 
 [lints.clippy]
 alloc_instead_of_core = "deny"

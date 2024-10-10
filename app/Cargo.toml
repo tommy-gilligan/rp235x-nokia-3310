@@ -10,7 +10,7 @@ multi-tap = { workspace = true }
 embassy-futures = { workspace = true }
 embassy-time = { workspace = true }
 numtoa = "0.2.4"
-totp-rs = { version = "5.6.0", git = "https://github.com/tommy-gilligan/totp-rs.git", branch = "no_std" }
+totp-rs = { features = ["serde", "gen_secret"], version = "5.6.0", git = "https://github.com/tommy-gilligan/totp-rs.git", branch = "no_std" }
 heapless = "0.8.0"
 
 [lints.clippy]

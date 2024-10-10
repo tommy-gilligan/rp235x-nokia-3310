@@ -26,7 +26,7 @@ where
     keypad: KEYPAD,
     draw_target: DRAW_TARGET,
     first_draw: bool,
-    lib: TOTP<F>
+    time_fn: F
 }
 
 impl<KEYPAD, DRAW_TARGET, F> Otp<KEYPAD, DRAW_TARGET, F>
@@ -40,14 +40,7 @@ where
             keypad,
             draw_target,
             first_draw: true,
-            lib: TOTP::new(
-                Algorithm::SHA1,
-                6,
-                1,
-                30,
-                Secret::Encoded(heapless::String::<64>::try_from("YZ5CTEPRPXKMDO67").unwrap()).to_bytes().unwrap(),
-                time_fn
-            ).unwrap()
+            time_fn
         }
     }
 
@@ -57,22 +50,32 @@ where
     }
 
     fn draw_countdown(&mut self) {
-        let width = self.draw_target.bounding_box().size.width;
-        let height = self.draw_target.bounding_box().size.height;
-        let bar_width = ((self.lib.ttl().unwrap() as u32 * width) / 30).try_into().unwrap(); 
+        // let width = self.draw_target.bounding_box().size.width;
+        // let height = self.draw_target.bounding_box().size.height;
+        // let bar_width = ((self.lib.ttl().unwrap() as u32 * width) / 30).try_into().unwrap(); 
 
-        let _ = Rectangle::new(
-            Point::new(0, (height - 10).try_into().unwrap()),
-            Size::new(width, 10)
-        ).into_styled(PrimitiveStyle::with_fill(BinaryColor::On)).draw(&mut self.draw_target);
-        let _ = Rectangle::new(
-            Point::new(0, (height - 10).try_into().unwrap()),
-            Size::new(bar_width, 10)
-        ).into_styled(PrimitiveStyle::with_fill(BinaryColor::Off)).draw(&mut self.draw_target);
+        // let _ = Rectangle::new(
+        //     Point::new(0, (height - 10).try_into().unwrap()),
+        //     Size::new(width, 10)
+        // ).into_styled(PrimitiveStyle::with_fill(BinaryColor::On)).draw(&mut self.draw_target);
+        // let _ = Rectangle::new(
+        //     Point::new(0, (height - 10).try_into().unwrap()),
+        //     Size::new(bar_width, 10)
+        // ).into_styled(PrimitiveStyle::with_fill(BinaryColor::Off)).draw(&mut self.draw_target);
     }
 
     fn draw_token(&mut self) {
-        let token = self.lib.generate_current().unwrap();
+        let secret = Secret::Encoded(heapless::String::<64>::try_from("YZ5CTEPRPXKMDO67").unwrap()).to_bytes().unwrap();
+        let lib = TOTP::new(
+            Algorithm::SHA1,
+            6,
+            1,
+            30,
+            &secret,
+        );
+
+        let mut token = heapless::String::<16>::new();
+        lib.generate((self.time_fn)(), &mut token);
         let width = self.draw_target.bounding_box().size.width;
         let height = self.draw_target.bounding_box().size.height;
 

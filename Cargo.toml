@@ -31,7 +31,7 @@ defmt = "*"
 defmt-rtt = "*"
 display-interface = "*"
 display-interface-spi = "*"
-embassy-rp = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp2040"] }
+embassy-rp = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xa"] }
 panic-probe = { version = "*", features = ["print-defmt"] }
 
 # web
