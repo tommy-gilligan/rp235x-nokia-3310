@@ -15,7 +15,4 @@ Comment,Designator,Footprint,"JLCPCB Part #",Manufacturer,"Manufacturer Part #"
 "12MHz","Y1","Crystal_SMD_3225-4Pin_3.2x2.5mm",C20625731,Abracon,ABM8-272-T3
 "NCP1117 3.3V","U4","SOT-223-3",C26537,onsemi,NCP1117ST33T3G
 "128Mbit","U1","SOIC-8-208mil",C97521,Winbond,W25Q128JVSIQ
-"Side-mount tactile switch","SW1","SMD,3.5x3.6mm",C79167,Panasonic,EVQP7A01P
-"Reverse-mount RGB","D3,D5,D6,D7,D9,D8,D4,D2","SMD,1.3x3.2mm",C2802677,EKINGLUX,E6CC1205RGBC3UDA
-"1x3P 3P SH Connector","J3,J6","JST_SH_SM03B-SRSS-TB_1x03-1MP_P1.00mm_Horizontal",C160403,JST,SM03B-SRSS-TB(LF)(SN)
-"2x10 Connector","J5","P2.54mm SMD",C3294468,HCTL,PZ254-2-10-S
+"Side-mount tactile switch","SW1","SMD,4.5x4.7mm",C128539,Panasonic,EVQPUA02K
