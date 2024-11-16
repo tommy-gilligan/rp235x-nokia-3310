@@ -9,48 +9,17 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 ![3D render of front of adapter board](./front.jpg)
 ![3D render of back of adapter board](./back.jpg)
 
-### Pin Assignment
-
-- Vibration: GPIO2
-- Buzzer: GPIO21
-- Keypad:
-    - Select GPIO12
-    - Up GPIO8
-	- Clear GPIO16
-	- 1 GPIO17
-	- 2 GPIO13
-	- 3 GPIO7
-	- 4 GPIO18
-	- 5 GPIO14
-	- 6 GPIO6
-	- 7 GPIO19
-	- 8 GPIO11
-	- 9 GPIO5
-	- * GPIO20
-	- 0 GPIO10
-	- # GPIO4 
-- Display:
-	- CLK GPIO38 SPI0
-	- TX GPIO39 SPI0
-	- D/C GPIO36
-	- Csn GPIO37 SPI0
-	- RST GPIO33
-- SIM:
-    - RST GPIO23
-    - CLK GPIO15
-    - I/O GPIO22
-
 ### TODO
 #### Hardware
-- update render (included more 3d models: U1, U5, L1, power button)
-- 2 pinouts: prototype vs fascimile
+- rtc (rp2040 had one, rp235x does not)
+
+##### Power
 - detect battery type to refuse NiMH
 - LiPo charging
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
     - looks like RP will release such a module so go ahead with designing with that in mind
 - power button (currently it is a second boot button)
 - power from battery
-- rtc (rp2040 had one, rp235x does not)
 
 #### Software
 - finish snake
