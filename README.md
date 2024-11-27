@@ -35,8 +35,5 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 
 #### Misc
 - Come up with better name
-    - Looks like I am targeting 2350a right now (due to IC availability)
-    - Then targeting 2354b (due to marginally increased simplicity for PCB design)
-    - Could then target 235[04]b
 
 https://serdisplib.sourceforge.net/ser/pcd8544.html
