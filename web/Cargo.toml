@@ -10,17 +10,18 @@ crate-type = ["cdylib"]
 [dependencies]
 app = { workspace = true }
 embassy-sync = { workspace = true, features = ["log"] }
-embassy-executor = { workspace = true, features = ["arch-wasm", "executor-thread", "log", "integrated-timers"] }
 embassy-time = { workspace = true, features = ["log", "wasm"] }
-
-wasm-logger = { workspace = true }
-wasm-bindgen = { workspace = true }
-web-sys = { workspace = true, features = ["AudioParam", "OscillatorNode", "AudioContext", "Document", "Element", "HtmlElement", "Node", "EventTarget", "MouseEvent", "Window", "OscillatorType", "AudioDestinationNode" ] }
-log = { workspace = true }
-
-embedded-graphics-web-simulator = { workspace = true }
 embedded-graphics = { workspace = true }
 multi-tap = { path = "../multi-tap" }
+embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", features = ["arch-wasm", "executor-thread", "log"] }
+log = "0.4.11"
+embedded-graphics-web-simulator = { git = "https://github.com/tommy-gilligan/embedded-graphics-web-simulator.git" }
+wasm-bindgen = "=0.2.93"
+wasm-logger = "0.2.0"
+web-sys = { version = "0.3", features = ["DomException", "DomTokenList", "AudioParam", "OscillatorNode", "GainNode", "AudioContext", "Document", "Element", "HtmlElement", "Node", "EventListener", "EventTarget", "MouseEvent", "Window", "OscillatorType", "AudioDestinationNode" ] }
+shared = { path = "../shared" }
+js-sys = "=0.3.70"
+yew = { version = "0.21.0", features = ["csr"] }
 
 [lints.clippy]
 alloc_instead_of_core = "deny"

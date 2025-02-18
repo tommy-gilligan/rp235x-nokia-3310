@@ -1,38 +1,45 @@
-use embassy_rp::pwm::{Config, Pwm};
-use fixed::traits::ToFixed;
+use embassy_rp::{
+    peripherals::{PIN_21, PWM_SLICE2},
+    pwm::{Config, Pwm, SetDutyCycle},
+};
+use shared::Buzzer;
 
-pub struct Buzzer<'a>(Pwm<'a>, u32, u32);
+pub struct Beeper<'a>(Pwm<'a>, u16);
 
-impl<'a> Buzzer<'a> {
-    pub fn new(pwm: Pwm<'a>) -> Self {
-        Self(pwm, 90, 0)
+impl Beeper<'_> {
+    pub fn new(slice: PWM_SLICE2, pin: PIN_21) -> Self {
+        Self(Pwm::new_output_b(slice, pin, Config::default()), 0)
     }
 
     fn update(&mut self) {
-        if self.2 == 0 {
-            let mut c: Config = Default::default();
-            c.enable = false;
-            self.0.set_config(&c);
+        let mut c: embassy_rp::pwm::Config = Default::default();
+        if self.1 == 0 {
+            self.0.set_duty_cycle_percent(0).unwrap();
         } else {
-            let top: u32 = 1000000 / self.2 - 1;
+            let divider = 16u8;
+            let period =
+                (embassy_rp::clocks::clk_sys_freq() / (self.1 as u32 * divider as u32)) as u16 - 1;
 
-            let mut c: Config = Default::default();
-            c.divider = 125.0.to_fixed();
-            c.top = top.try_into().unwrap();
-            c.compare_a = ((top + 1) * self.1 / 100 - 1).try_into().unwrap();
+            c.top = period;
+            c.divider = divider.into();
 
             self.0.set_config(&c);
+            self.0.set_duty_cycle_percent(90).unwrap();
         }
     }
 }
 
-impl<'a> app::buzzer::Buzzer for Buzzer<'a> {
-    fn enable(&mut self) {}
+impl Buzzer for Beeper<'_> {
+    fn mute(&mut self) {}
 
-    fn disable(&mut self) {}
+    fn unmute(&mut self) {}
 
-    fn set_frequency(&mut self, frequency: u32) {
-        self.2 = frequency;
+    fn set_volume(&mut self, _volume: u8) {
+        // self.0.set_duty_cycle_percent(volume).unwrap();
+    }
+
+    fn set_frequency(&mut self, frequency: u16) {
+        self.1 = frequency;
         self.update();
     }
 }

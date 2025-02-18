@@ -20,77 +20,127 @@ pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 4] = [
 
 use core::cell::RefCell;
 
-use embassy_time::Timer;
 use defmt::*;
 use defmt_rtt as _;
 use display_interface_spi::SPIInterface;
 use embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig;
-use embassy_executor::Spawner;
+use embassy_executor::{Executor, Spawner};
 use embassy_rp::{
-    gpio::{Input, Level, Output, Pull},
-    pwm::{Config, Pwm},
-    spi::{self, Spi},
     block::ImageDef,
+    gpio::{Level, Output},
+    multicore::{spawn_core1, Stack},
+    peripherals::{PIN_20, PIN_33, PIN_36, PIN_37, PIN_38, PIN_39, SPI0},
+    spi::{self, Spi},
 };
 use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
-use embassy_time::Delay;
+use embassy_time::{Delay, Timer};
+use embedded_graphics::{
+    draw_target::DrawTarget,
+    mono_font::{ascii::FONT_10X20, MonoTextStyle},
+    pixelcolor::BinaryColor,
+    prelude::Point,
+    text::Text,
+    Drawable,
+};
 use panic_probe as _;
+use shared::Application;
+use static_cell::StaticCell;
 
+use crate::spi::Blocking;
+
+mod button;
 mod buzzer;
-mod matrix;
-mod usb;
+mod clock;
+mod vibration_motor;
 
-use buzzer::*;
-use matrix::*;
-use pcd8544::Driver as PCD8544;
+static mut CORE1_STACK: Stack<4096> = Stack::new();
+static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
 
-const SONG_TEXT: &str = "Wannabe:d=4, o=5, b=125:16g, 16g, 16g, 16g, 8g, 8a, 8g, 8e, 8p, 16c, 16d, 16c, 8d, 8d, 8c, e, p, 8g, 8g, 8g, 8a, 8g, 8e, 8p, c6, 8c6, 8b, 8g, 8a, 16b, 16a, g";
+#[embassy_executor::task]
+async fn core1_task(
+    spi0: SPI0,
+    reset: PIN_33,
+    dc: PIN_36,
+    display_cs: PIN_37,
+    clk: PIN_38,
+    mosi: PIN_39,
+    miso: PIN_20,
+) {
+    let mut display_config = spi::Config::default();
+    display_config.frequency = 4_000_000;
 
-// use embassy_rp::rtc::{DateTime, DayOfWeek, Rtc};
+    let spi: Spi<'_, _, Blocking> =
+        Spi::new_blocking(spi0, clk, mosi, miso, display_config.clone());
+    let spi_bus: Mutex<NoopRawMutex, _> = Mutex::new(RefCell::new(spi));
+
+    let display_spi = SpiDeviceWithConfig::new(
+        &spi_bus,
+        Output::new(display_cs, Level::High),
+        display_config,
+    );
+
+    let mut pcd8544: pcd8544::Driver<
+        SPIInterface<
+            embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig<
+                '_,
+                NoopRawMutex,
+                embassy_rp::spi::Spi<'_, SPI0, embassy_rp::spi::Blocking>,
+                Output<'_>,
+            >,
+            Output<'_>,
+        >,
+        Output<'_>,
+        core::convert::Infallible,
+    > = pcd8544::Driver::new(
+        SPIInterface::new(display_spi, Output::new(dc, Level::High)),
+        Output::new(reset, Level::High),
+    );
+
+    loop {
+        pcd8544.init(&mut Delay).unwrap();
+        pcd8544.set_contrast(64).unwrap();
+        pcd8544.invert_display(true).unwrap();
+        pcd8544.clear(BinaryColor::Off).unwrap();
+
+        let style = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
+        Text::new("ABC", Point::new(20, 30), style)
+            .draw(&mut pcd8544)
+            .unwrap();
+        pcd8544.flush().unwrap();
+
+        Timer::after_millis(1000).await;
+    }
+}
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    // let mut rtc = Rtc::new(p.RTC);
 
-    // if !rtc.is_running() {
-    //     let now = chrono::naive::NaiveDateTime::from_timestamp(1727617276744 / 1000, 0);
-    //     rtc.set_datetime(now).unwrap();
-    // }
+    let spi0 = p.SPI0;
+    let reset = p.PIN_33;
+    let dc = p.PIN_36;
+    let display_cs = p.PIN_37;
+    let clk = p.PIN_38;
+    let mosi = p.PIN_39;
+    let miso = p.PIN_20;
 
-
-    let mut config = spi::Config::default();
-    config.frequency = 4_000_000;
-    let spi = Spi::new_blocking(p.SPI1, p.PIN_14, p.PIN_15, p.PIN_8, config.clone());
-    let spi_bus: Mutex<NoopRawMutex, _> = Mutex::new(RefCell::new(spi));
-
-    let display_spi =
-        SpiDeviceWithConfig::new(&spi_bus, Output::new(p.PIN_13, Level::High), config.clone());
-    let mut pcd8544 = PCD8544::new(
-        SPIInterface::new(display_spi, Output::new(p.PIN_11, Level::High)),
-        Output::new(p.PIN_12, Level::High),
-    );
-    pcd8544.init(&mut Delay).unwrap();
-    pcd8544.set_contrast(64).unwrap();
-    pcd8544.invert_display(true);
-
-    let mut _buzzer = Buzzer::new(Pwm::new_output_a(p.PWM_SLICE1, p.PIN_2, Config::default()));
-
-    let matrix = Matrix::new(
-        Input::new(p.PIN_9, Pull::Down),
-        Input::new(p.PIN_3, Pull::Down),
-        Input::new(p.PIN_4, Pull::Down),
-        Input::new(p.PIN_6, Pull::Down),
-        Output::new(p.PIN_7, Level::High),
-        Output::new(p.PIN_10, Level::High),
-        Output::new(p.PIN_5, Level::High),
+    spawn_core1(
+        p.CORE1,
+        unsafe { &mut *core::ptr::addr_of_mut!(CORE1_STACK) },
+        move || {
+            let executor1 = EXECUTOR1.init(Executor::new());
+            executor1.run(|spawner| {
+                unwrap!(spawner.spawn(core1_task(spi0, reset, dc, display_cs, clk, mosi, miso)))
+            });
+        },
     );
 
-    // let c = ;
-    let mut menu = app::otp::Otp::new(matrix, pcd8544, 0, || 0);
+    let _button = button::Button::new(p.PIN_28);
 
-    // rtc.now().unwrap().and_utc().timestamp().try_into().unwrap()
-    loop {
-        menu.process().await
-    }
+    shared::Beepy::run(
+        vibration_motor::Motor::new(p.PIN_2),
+        buzzer::Beeper::new(p.PWM_SLICE2, p.PIN_21),
+        clock::Clock::new(p.I2C1, p.PIN_46, p.PIN_47),
+    )
+    .await;
 }

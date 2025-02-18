@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  RUSTFLAGS: -Dwarnings
+  RUSTDOCFLAGS: -Dwarnings
+
+jobs:
+  stable:
+    name: Rust
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: clippy,rustfmt
+      - run: cargo clippy --all-targets
+        working-directory: rp
+      - run: cargo clippy --all-targets
+        working-directory: web
+      - run: cargo clippy --all-targets
+        working-directory: shared
+      - run: cargo fmt --check
+        working-directory: rp
+      - run: cargo fmt --check
+        working-directory: web
+      - run: cargo fmt --check
+        working-directory: shared
