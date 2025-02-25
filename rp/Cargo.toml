@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 multi-tap = { workspace = true }
 # rtttl = { workspace = true }
-# pcd8544 = { workspace = true }
+pcd8544 = { workspace = true }
 app = { workspace = true }
 
 embedded-hal = { workspace = true }
@@ -21,7 +21,7 @@ cortex-m-rt = { workspace = true }
 critical-section = { workspace = true }
 panic-probe = { workspace = true }
 usbd-hid = { workspace = true }
-embedded-graphics = { workspace = true }
+embedded-graphics-core = "0.4.0"
 display-interface-spi = { workspace = true }
 display-interface = { workspace = true }
 

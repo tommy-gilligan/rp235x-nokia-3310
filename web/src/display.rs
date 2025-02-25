@@ -7,19 +7,20 @@ use embedded_graphics::{
 use embedded_graphics_web_simulator::{
     display::WebSimulatorDisplay, output_settings::OutputSettingsBuilder,
 };
+use web_sys::Element;
 
 pub struct Display(WebSimulatorDisplay<embedded_graphics::pixelcolor::BinaryColor>);
 
 impl Display {
-    pub fn new() -> Self {
+    pub fn new(element: Element) -> Self {
         let output_settings = OutputSettingsBuilder::new()
-            .scale(2)
+            .scale(1)
             .pixel_spacing(0)
             .alpha_color(embedded_graphics::pixelcolor::BinaryColor::On)
             .build();
 
         let display: WebSimulatorDisplay<embedded_graphics::pixelcolor::BinaryColor> =
-            WebSimulatorDisplay::new((84, 48), &output_settings, None);
+            WebSimulatorDisplay::new((84, 48), &output_settings, Some(&element));
 
         Self(display)
     }

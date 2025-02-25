@@ -157,7 +157,7 @@ where
                     0x01 << ((coord.y as usize) % 8);
             }
         }
-        self.flush();
+        let _ = self.flush();
 
         Ok(())
     }

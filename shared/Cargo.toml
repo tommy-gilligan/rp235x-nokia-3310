@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4.39", default-features = false, optional = true }
 embassy-time = { workspace = true }
+embedded-graphics = "0.8"
