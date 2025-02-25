@@ -1,15 +1,12 @@
-use std::{
-    cell::RefCell,
-    sync::{Arc, Mutex},
-};
+use std::{cell::RefCell, rc::Rc, sync::Mutex};
 
 use wasm_bindgen::prelude::*;
 use web_sys::{AudioContext, Element, GainNode, OscillatorNode, OscillatorType};
 
 pub struct Buzzer {
     element: Element,
-    oscillator: Arc<Mutex<Option<OscillatorNode>>>,
-    gain: Arc<Mutex<Option<GainNode>>>,
+    oscillator: Rc<Mutex<Option<OscillatorNode>>>,
+    gain: Rc<Mutex<Option<GainNode>>>,
     closure: RefCell<Option<Closure<dyn FnMut()>>>,
 }
 
@@ -17,13 +14,13 @@ impl Buzzer {
     pub fn new(element: Element) -> Self {
         let result = Self {
             element,
-            oscillator: Arc::new(Mutex::new(None)),
-            gain: Arc::new(Mutex::new(None)),
+            oscillator: Rc::new(Mutex::new(None)),
+            gain: Rc::new(Mutex::new(None)),
             closure: RefCell::new(None),
         };
 
-        let o = Arc::clone(&result.oscillator);
-        let g = Arc::clone(&result.gain);
+        let o = Rc::clone(&result.oscillator);
+        let g = Rc::clone(&result.gain);
 
         result
             .closure
@@ -64,7 +61,7 @@ impl Buzzer {
 
 impl shared::Buzzer for Buzzer {
     fn mute(&mut self) {
-        let binding = Arc::clone(&self.oscillator);
+        let binding = Rc::clone(&self.oscillator);
         let mut oscillator = binding.lock().unwrap();
         if let Some(o) = oscillator.as_mut() {
             match o.stop() {
@@ -80,7 +77,7 @@ impl shared::Buzzer for Buzzer {
     }
 
     fn unmute(&mut self) {
-        let binding = Arc::clone(&self.oscillator);
+        let binding = Rc::clone(&self.oscillator);
         let mut oscillator = binding.lock().unwrap();
         if let Some(o) = oscillator.as_mut() {
             match o.start() {
@@ -96,7 +93,7 @@ impl shared::Buzzer for Buzzer {
     }
 
     fn set_frequency(&mut self, frequency: u16) {
-        let binding = Arc::clone(&self.oscillator);
+        let binding = Rc::clone(&self.oscillator);
         let mut oscillator = binding.lock().unwrap();
         if let Some(o) = oscillator.as_mut() {
             o.frequency().set_value(frequency as f32);
@@ -104,7 +101,7 @@ impl shared::Buzzer for Buzzer {
     }
 
     fn set_volume(&mut self, volume: u8) {
-        let binding = Arc::clone(&self.gain);
+        let binding = Rc::clone(&self.gain);
         let mut gain = binding.lock().unwrap();
         if let Some(g) = gain.as_mut() {
             g.gain().set_value(volume as f32 / 100.0);

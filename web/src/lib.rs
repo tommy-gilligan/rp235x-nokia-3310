@@ -1,6 +1,4 @@
-#![feature(ascii_char)]
-#![feature(ascii_char_variants)]
-
+#![allow(unexpected_cfgs)]
 mod buzzer;
 mod clock;
 mod vibration_motor;

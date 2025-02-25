@@ -21,15 +21,11 @@ jobs:
         with:
           toolchain: nightly
           components: clippy,rustfmt
-      - run: cargo clippy --all-targets
+          targets: thumbv8m.main-none-eabihf
+      - run: cargo clippy --no-deps
         working-directory: rp
-      - run: cargo clippy --all-targets
+      - run: cargo clippy --no-deps
         working-directory: web
-      - run: cargo clippy --all-targets
+      - run: cargo clippy --no-deps
         working-directory: shared
       - run: cargo fmt --check
-        working-directory: rp
-      - run: cargo fmt --check
-        working-directory: web
-      - run: cargo fmt --check
-        working-directory: shared

@@ -940,20 +940,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embedded-hal-mock"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9a0f04f8886106faf281c47b6a0e4054a369baedaf63591fdb8da9761f3f379"
-dependencies = [
- "embedded-hal 0.2.7",
- "embedded-hal 1.0.0",
- "embedded-hal-nb",
- "embedded-time",
- "nb 1.1.0",
- "void",
-]
-
-[[package]]
 name = "embedded-hal-nb"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -991,15 +977,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1763775e2323b7d5f0aa6090657f5e21cfa02ede71f5dc40eead06d64dcd15cc"
 dependencies = [
  "embedded-storage",
-]
-
-[[package]]
-name = "embedded-time"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7a4b4d10ac48d08bfe3db7688c402baadb244721f30a77ce360bd24c3dffe58"
-dependencies = [
- "num",
 ]
 
 [[package]]
@@ -2148,6 +2125,7 @@ dependencies = [
 [[package]]
 name = "mp"
 version = "0.1.0"
+source = "git+https://github.com/tommy-gilligan/piicodev-rs.git#fade15099ee4009ecf87cadf6f7ef3c9cec44510"
 dependencies = [
  "probe-rs",
  "tempfile",
@@ -2193,59 +2171,6 @@ dependencies = [
  "bitflags 1.3.2",
  "cfg-if",
  "libc",
-]
-
-[[package]]
-name = "num"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b7a8e9be5e039e2ff869df49155f1c06bd01ade2117ec783e56ab0932b67a8f"
-dependencies = [
- "num-complex",
- "num-integer",
- "num-iter",
- "num-rational",
- "num-traits",
-]
-
-[[package]]
-name = "num-complex"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "747d632c0c558b87dbabbe6a82f3b4ae03720d0646ac5b7b4dae89394be5f2c5"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "num-integer"
-version = "0.1.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "num-iter"
-version = "0.1.45"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1429034a0490724d0075ebb2bc9e875d6503c3cf69e235a8941aa757d83ef5bf"
-dependencies = [
- "autocfg",
- "num-integer",
- "num-traits",
-]
-
-[[package]]
-name = "num-rational"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
-dependencies = [
- "autocfg",
- "num-integer",
- "num-traits",
 ]
 
 [[package]]
@@ -2418,16 +2343,6 @@ name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
-
-[[package]]
-name = "pcd8544"
-version = "0.1.0"
-dependencies = [
- "display-interface",
- "embedded-graphics-core",
- "embedded-hal 1.0.0",
- "embedded-hal-mock",
-]
 
 [[package]]
 name = "percent-encoding"
@@ -2819,8 +2734,6 @@ dependencies = [
  "heapless 0.8.0",
  "multi-tap",
  "panic-probe",
- "pcd8544",
- "rtttl",
  "shared",
  "static_cell",
  "unofficial-piicodev",
@@ -2851,10 +2764,6 @@ checksum = "7c92f344f63f950ee36cf4080050e4dce850839b9175da38f9d2ffb69b4dbb21"
 dependencies = [
  "crc-any",
 ]
-
-[[package]]
-name = "rtttl"
-version = "0.1.0"
 
 [[package]]
 name = "rusb"
@@ -3638,6 +3547,7 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 [[package]]
 name = "unofficial-piicodev"
 version = "0.1.0"
+source = "git+https://github.com/tommy-gilligan/piicodev-rs.git#fade15099ee4009ecf87cadf6f7ef3c9cec44510"
 dependencies = [
  "cast",
  "embedded-graphics-core",
