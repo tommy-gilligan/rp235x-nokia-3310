@@ -1,10 +1,10 @@
 use embassy_rp::{
+    Peripheral,
     gpio::{Input, Pin, Pull},
     peripherals::{
-        PIN_10, PIN_11, PIN_12, PIN_13, PIN_14, PIN_16, PIN_17, PIN_18, PIN_19, PIN_20, PIN_4,
-        PIN_5, PIN_6, PIN_7, PIN_8, PIN_9,
+        PIN_4, PIN_5, PIN_6, PIN_7, PIN_8, PIN_9, PIN_10, PIN_11, PIN_12, PIN_13, PIN_14, PIN_16,
+        PIN_17, PIN_18, PIN_19, PIN_20,
     },
-    Peripheral,
 };
 use embassy_time::Timer;
 use shared::Keypad;

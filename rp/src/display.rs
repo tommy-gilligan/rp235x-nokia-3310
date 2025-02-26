@@ -9,10 +9,10 @@ use embassy_rp::{
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_time::Delay;
 use embedded_graphics_core::{
+    Pixel,
     pixelcolor::BinaryColor,
     prelude::{Dimensions, DrawTarget},
     primitives::Rectangle,
-    Pixel,
 };
 
 type SpiDeviceWithConfig<'a> = embassy_embedded_hal::shared_bus::blocking::spi::SpiDeviceWithConfig<

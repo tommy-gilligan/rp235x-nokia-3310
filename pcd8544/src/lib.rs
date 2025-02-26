@@ -7,11 +7,11 @@ use core::cmp;
 
 use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 use embedded_graphics_core::{
+    Pixel,
     draw_target::DrawTarget,
     geometry::{Dimensions, Point, Size},
     pixelcolor::BinaryColor,
     primitives::rectangle::Rectangle,
-    Pixel,
 };
 use embedded_hal::{delay::DelayNs, digital::OutputPin};
 

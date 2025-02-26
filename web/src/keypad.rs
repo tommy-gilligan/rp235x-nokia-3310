@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use embassy_time::Timer;
 use shared::{Key, Keypad};
-use wasm_bindgen::{closure::Closure, JsCast};
+use wasm_bindgen::{JsCast, closure::Closure};
 
 struct DomB {
     was_clicked: bool,

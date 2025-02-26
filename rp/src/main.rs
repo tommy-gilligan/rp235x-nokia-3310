@@ -18,7 +18,9 @@ pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 6] = [
     ),
     embassy_rp::binary_info::rp_cargo_version!(),
     embassy_rp::binary_info::rp_program_build_attribute!(),
-    embassy_rp::binary_info::rp_program_url!(c"https://github.com/tommy-gilligan/rp235x-nokia-3310")
+    embassy_rp::binary_info::rp_program_url!(
+        c"https://github.com/tommy-gilligan/rp235x-nokia-3310"
+    ),
 ];
 
 use defmt::println;
@@ -38,7 +40,7 @@ mod vibration_motor;
 use core::cell::RefCell;
 
 use embassy_rp::{spi, spi::Spi};
-use embassy_sync::blocking_mutex::{raw::NoopRawMutex, Mutex};
+use embassy_sync::blocking_mutex::{Mutex, raw::NoopRawMutex};
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {

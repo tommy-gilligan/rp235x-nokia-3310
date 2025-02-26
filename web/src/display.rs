@@ -1,8 +1,8 @@
 use embedded_graphics::{
+    Pixel,
     pixelcolor::BinaryColor,
     prelude::{Dimensions, DrawTarget},
     primitives::Rectangle,
-    Pixel,
 };
 use embedded_graphics_web_simulator::{
     display::WebSimulatorDisplay, output_settings::OutputSettingsBuilder,
