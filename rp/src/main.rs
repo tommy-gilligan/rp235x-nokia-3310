@@ -29,6 +29,7 @@ mod button;
 mod buzzer;
 mod clock;
 mod display;
+mod keypad;
 mod vibration_motor;
 
 use core::cell::RefCell;
@@ -41,7 +42,7 @@ async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
     let _button = button::Button::new(p.PIN_28);
 
-    let mut beepy = shared::Beepy::new();
+    let mut beepy = shared::Beepy::new(10);
     let mut vibration_motor = vibration_motor::Motor::new(p.PIN_2);
     let mut buzzer = buzzer::Beeper::new(p.PWM_SLICE2, p.PIN_21);
     let mut clock = clock::Clock::new(p.I2C1, p.PIN_46, p.PIN_47);
@@ -52,10 +53,15 @@ async fn main(_spawner: Spawner) {
         p.SPI0,
         p.PIN_38,
         p.PIN_39,
-        p.PIN_20,
+        p.PIN_32,
         display_config,
     )));
     let mut display = display::Display::new(&spi_bus, p.PIN_37, p.PIN_36, p.PIN_33);
+
+    let mut keypad = keypad::ContactKeypad::new(
+        p.PIN_16, p.PIN_12, p.PIN_9, p.PIN_8, p.PIN_17, p.PIN_13, p.PIN_7, p.PIN_18, p.PIN_14,
+        p.PIN_6, p.PIN_19, p.PIN_11, p.PIN_5, p.PIN_20, p.PIN_10, p.PIN_4,
+    );
 
     loop {
         // decide your time budgets
@@ -70,6 +76,7 @@ async fn main(_spawner: Spawner) {
                 &mut vibration_motor,
                 &mut buzzer,
                 &mut display,
+                &mut keypad,
                 &mut clock,
                 None,
             ),

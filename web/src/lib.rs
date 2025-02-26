@@ -2,6 +2,7 @@
 mod buzzer;
 mod clock;
 mod display;
+mod keypad;
 mod vibration_motor;
 
 use embassy_executor::Spawner;
@@ -16,13 +17,18 @@ async fn main(_spawner: Spawner) {
     let svg = document.get_element_by_id("svg1").unwrap();
     let mut vibration_motor = vibration_motor::Motor::new(svg);
 
-    let svg = document.get_element_by_id("svg1").unwrap();
+    let svg = document.get_element_by_id("nokia").unwrap();
     let mut buzzer = buzzer::Buzzer::new(svg);
     let mut clock = clock::Clock::new();
-    let mut beepy = shared::Beepy::new();
+    let mut beepy = shared::Beepy::new(10);
 
     let svg = document.get_element_by_id("display").unwrap();
     let mut display = display::Display::new(svg);
+
+    let mut keypad = keypad::DomKeypad::new(
+        "cancel", "select", "up", "down", "one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine", "asterisk", "zero", "hash",
+    );
 
     loop {
         // decide your time budgets
@@ -37,6 +43,7 @@ async fn main(_spawner: Spawner) {
                 &mut vibration_motor,
                 &mut buzzer,
                 &mut display,
+                &mut keypad,
                 &mut clock,
                 None,
             ),

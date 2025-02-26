@@ -2,7 +2,6 @@
 
 use core::{fmt::Debug, future::Future};
 
-use embassy_time::Timer;
 use embedded_graphics::{
     draw_target::DrawTarget,
     pixelcolor::BinaryColor,
@@ -80,6 +79,7 @@ pub trait Application {
         vibration_motor: &mut impl VibrationMotor,
         buzzer: &mut impl Buzzer,
         display: &mut D,
+        keypad: &mut impl Keypad,
         rtc: &mut impl Rtc,
         // NB. placeholder () here are for very different purposes
         system_response: Option<Result<SystemRequest, ()>>,
@@ -90,17 +90,17 @@ pub trait Application {
 
 pub enum SystemRequest {}
 
-pub struct Beepy;
+pub struct Beepy(i32);
 
 impl Beepy {
-    pub fn new() -> Self {
-        Self
+    pub fn new(yoffset: i32) -> Self {
+        Self(yoffset)
     }
 }
 
 impl Default for Beepy {
     fn default() -> Self {
-        Self::new()
+        Self::new(10)
     }
 }
 
@@ -110,23 +110,13 @@ impl Application for Beepy {
         vibration_motor: &mut impl VibrationMotor,
         buzzer: &mut impl Buzzer,
         display: &mut D,
+        keypad: &mut impl Keypad,
         _rtc: &mut impl Rtc,
         _system_response: Option<Result<SystemRequest, ()>>,
     ) -> Result<Option<SystemRequest>, ()>
     where
         <D as DrawTarget>::Error: Debug,
     {
-        buzzer.unmute();
-        // buzzer.set_volume(50);
-
-        buzzer.set_frequency(440);
-        vibration_motor.start();
-        Timer::after_millis(100).await;
-
-        buzzer.set_frequency(880);
-        vibration_motor.stop();
-        Timer::after_millis(100).await;
-
         let thin_stroke = PrimitiveStyle::with_stroke(BinaryColor::Off, 1);
         let border_stroke = PrimitiveStyleBuilder::new()
             .stroke_color(BinaryColor::Off)
@@ -135,24 +125,53 @@ impl Application for Beepy {
             .build();
         let fill = PrimitiveStyle::with_fill(BinaryColor::Off);
 
-        let yoffset = 10;
-
         display
             .bounding_box()
             .into_styled(border_stroke)
             .draw(display)
             .unwrap();
 
+        match keypad.event().await {
+            KeyEvent::Down(Key::Down) => {
+                self.0 -= 1;
+            }
+            KeyEvent::Down(Key::Up) => {
+                self.0 += 1;
+            }
+            KeyEvent::Down(Key::One) => {
+                buzzer.unmute();
+            }
+            KeyEvent::Down(Key::Two) => {
+                buzzer.mute();
+            }
+            KeyEvent::Down(Key::Four) => {
+                buzzer.set_frequency(440);
+            }
+            KeyEvent::Down(Key::Five) => {
+                buzzer.set_frequency(660);
+            }
+            KeyEvent::Down(Key::Six) => {
+                buzzer.set_frequency(880);
+            }
+            KeyEvent::Down(Key::Eight) => {
+                vibration_motor.start();
+            }
+            KeyEvent::Down(Key::Seven) => {
+                vibration_motor.stop();
+            }
+            _ => {}
+        }
+
         Triangle::new(
-            Point::new(16, 16 + yoffset),
-            Point::new(16 + 16, 16 + yoffset),
-            Point::new(16 + 8, yoffset),
+            Point::new(16, 16 + self.0),
+            Point::new(16 + 16, 16 + self.0),
+            Point::new(16 + 8, self.0),
         )
         .into_styled(thin_stroke)
         .draw(display)
         .unwrap();
 
-        Rectangle::new(Point::new(52, yoffset), Size::new(16, 16))
+        Rectangle::new(Point::new(52, self.0), Size::new(16, 16))
             .into_styled(fill)
             .draw(display)
             .unwrap();
