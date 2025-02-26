@@ -1,21 +1,24 @@
 #![no_std]
 #![no_main]
 
-#[link_section = ".start_block"]
+#[unsafe(link_section = ".start_block")]
 #[used]
 pub static IMAGE_DEF: ImageDef = ImageDef::secure_exe();
 
 // Program metadata for `picotool info`.
 // This isn't needed, but it's recomended to have these minimal entries.
-#[link_section = ".bi_entries"]
+#[unsafe(link_section = ".bi_entries")]
 #[used]
-pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 4] = [
-    embassy_rp::binary_info::rp_program_name!(c"Blinky Example"),
+pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 6] = [
+    embassy_rp::binary_info::rp_program_name!(c"rp235x-nokia-3310"),
+    // in repo root: find pcb -type f \( -exec sha1sum "$PWD"/{} \; \) | awk '{print $1}' | sort | sha1sum | cut -b-10
+    embassy_rp::binary_info::rp_pico_board!(c"rp235x-nokia-3310-5da11fc30e"),
     embassy_rp::binary_info::rp_program_description!(
         c"This example tests the RP Pico on board LED, connected to gpio 25"
     ),
     embassy_rp::binary_info::rp_cargo_version!(),
     embassy_rp::binary_info::rp_program_build_attribute!(),
+    embassy_rp::binary_info::rp_program_url!(c"https://github.com/tommy-gilligan/rp235x-nokia-3310")
 ];
 
 use defmt::println;
