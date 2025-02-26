@@ -5,10 +5,10 @@ version = "0.1.0"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-multi-tap = { workspace = true }
+# multi-tap = { workspace = true }
 # rtttl = { workspace = true }
 pcd8544 = { workspace = true }
-app = { workspace = true }
+# app = { workspace = true }
 
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
@@ -18,7 +18,6 @@ fixed = { workspace = true }
 fixed-macro = { workspace = true }
 cortex-m = { workspace = true }
 cortex-m-rt = { workspace = true }
-critical-section = { workspace = true }
 panic-probe = { workspace = true }
 usbd-hid = { workspace = true }
 embedded-graphics-core = "0.4.0"
@@ -39,6 +38,7 @@ heapless = "0.8"
 static_cell = "2.1.0"
 shared = { path = "../shared", features = [ "chrono" ] }
 unofficial-piicodev = { git = "https://github.com/tommy-gilligan/piicodev-rs.git" }
+critical-section = "*"
 
 # [lints.clippy]
 # alloc_instead_of_core = "deny"

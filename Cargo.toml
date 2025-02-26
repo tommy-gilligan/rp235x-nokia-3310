@@ -3,10 +3,10 @@ resolver = "2"
 members = ["rp", "shared", "web"]
 
 [workspace.dependencies]
-multi-tap = { path = "./multi-tap" }
+# multi-tap = { path = "./multi-tap" }
 pcd8544 = { path = "./pcd8544" }
-rtttl = { path = "./rtttl" }
-app = { path = "./app" }
+# rtttl = { path = "./rtttl" }
+# app = { path = "./app" }
 
 embassy-embedded-hal = { version = "*", git = "https://github.com/embassy-rs/embassy.git", features = ["defmt"] }
 embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", features = ["executor-thread", "integrated-timers"] }
@@ -25,15 +25,11 @@ usbd-hid = "*"
 
 cortex-m = { version = "*", features = ["inline-asm"] }
 cortex-m-rt = "*"
-critical-section = "*"
 defmt = "*"
 defmt-rtt = "*"
 display-interface = "*"
 display-interface-spi = "*"
-embassy-rp = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp235xb"] }
 panic-probe = { version = "*", features = ["print-defmt"] }
-
-# web
 
 [profile.release]
 debug = 2
