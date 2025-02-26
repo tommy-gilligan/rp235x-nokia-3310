@@ -21,6 +21,9 @@ jobs:
     - run: cargo install --locked trunk
     - run: trunk build -M --release --dist ../docs --public-url 'https://tommy-gilligan.github.io/rp235x-nokia-3310'
       working-directory: web
+    - run: cargo doc
+      working-directory: shared
+    - run: mv target/doc docs/
     - name: Upload static files as artifact
       uses: actions/upload-pages-artifact@v3
       with:

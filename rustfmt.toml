@@ -1,5 +1,5 @@
 condense_wildcard_suffixes = true
-edition = "2021"
+edition = "2024"
 imports_granularity = "Crate"
 group_imports = "StdExternalCrate"
 use_field_init_shorthand = true
