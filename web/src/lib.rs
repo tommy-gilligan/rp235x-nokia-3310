@@ -4,6 +4,7 @@ mod display;
 mod keypad;
 mod rtc;
 mod vibration_motor;
+mod backlight;
 
 use embassy_executor::Spawner;
 use shared::Application;
@@ -25,6 +26,9 @@ async fn main(_spawner: Spawner) {
     let svg = document.get_element_by_id("display").unwrap();
     let mut display = display::Display::new(svg);
 
+    let svg = document.get_element_by_id("backlight").unwrap();
+    let mut light = backlight::Light::new(svg);
+
     let mut keypad = keypad::DomKeypad::new(
         "cancel", "select", "up", "down", "one", "two", "three", "four", "five", "six", "seven",
         "eight", "nine", "asterisk", "zero", "hash",
@@ -45,6 +49,7 @@ async fn main(_spawner: Spawner) {
                 &mut display,
                 &mut keypad,
                 &mut rtc,
+                &mut light,
                 None,
             ),
         )

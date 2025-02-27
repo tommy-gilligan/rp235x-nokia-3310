@@ -4,6 +4,11 @@ use core::{fmt::Debug, future::Future};
 
 use embedded_graphics::{draw_target::DrawTarget, pixelcolor::BinaryColor};
 
+pub trait Backlight {
+    fn on(&mut self);
+    fn off(&mut self);
+}
+
 pub trait VibrationMotor {
     fn start(&mut self);
     fn stop(&mut self);
@@ -69,6 +74,7 @@ pub trait Application {
         display: &mut D,
         keypad: &mut impl Keypad,
         rtc: &mut impl Rtc,
+        backlight: &mut impl Backlight,
         // NB. placeholder () here are for very different purposes
         // system_response could be a collection of system events that have happened since last run
         // call

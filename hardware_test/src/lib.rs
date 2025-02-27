@@ -32,6 +32,7 @@ impl Application for HardwareTest {
         display: &mut D,
         keypad: &mut impl shared::Keypad,
         _rtc: &mut impl shared::Rtc,
+        backlight: &mut impl shared::Backlight,
         _system_response: Option<Result<shared::SystemRequest, ()>>,
     ) -> Result<Option<shared::SystemRequest>, ()>
     where
@@ -78,6 +79,12 @@ impl Application for HardwareTest {
             }
             KeyEvent::Down(Key::Seven) => {
                 vibration_motor.stop();
+            }
+            KeyEvent::Down(Key::Nine) => {
+                backlight.on();
+            }
+            KeyEvent::Down(Key::Three) => {
+                backlight.off();
             }
             _ => {}
         }

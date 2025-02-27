@@ -36,6 +36,7 @@ mod display;
 mod keypad;
 mod rtc;
 mod vibration_motor;
+mod backlight;
 
 use core::cell::RefCell;
 
@@ -68,6 +69,8 @@ async fn main(_spawner: Spawner) {
         p.PIN_6, p.PIN_19, p.PIN_11, p.PIN_5, p.PIN_20, p.PIN_10, p.PIN_4,
     );
 
+    let mut backlight = backlight::Light::new(p.PIN_15);
+
     loop {
         // decide your time budgets
         // 'trust' application takes at most 750ms
@@ -83,6 +86,7 @@ async fn main(_spawner: Spawner) {
                 &mut display,
                 &mut keypad,
                 &mut clock,
+                &mut backlight,
                 None,
             ),
         )

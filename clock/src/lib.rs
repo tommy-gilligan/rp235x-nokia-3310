@@ -52,6 +52,7 @@ impl Application for Clock {
         display: &mut D,
         _keypad: &mut impl shared::Keypad,
         rtc: &mut impl shared::Rtc,
+        _backlight: &mut impl shared::Backlight,
         _system_response: Option<Result<shared::SystemRequest, ()>>,
     ) -> Result<Option<shared::SystemRequest>, ()>
     where
