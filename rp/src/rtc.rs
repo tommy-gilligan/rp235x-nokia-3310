@@ -21,14 +21,14 @@ impl Clock<'_> {
             .unwrap(),
         )
     }
+
+    fn set_timestamp(&mut self, timestamp: i64) {
+        self.0.set_unix_time(timestamp.try_into().unwrap()).unwrap()
+    }
 }
 
 impl Rtc for Clock<'_> {
     fn timestamp(&mut self) -> i64 {
         self.0.get_unix_time().unwrap().into()
-    }
-
-    fn set_timestamp(&mut self, timestamp: i64) {
-        self.0.set_unix_time(timestamp.try_into().unwrap()).unwrap()
     }
 }

@@ -30,9 +30,9 @@ pub trait PowerButton {
     fn is_pressed(&self) -> bool;
     fn event(&mut self) -> impl core::future::Future<Output = ButtonEvent> + core::marker::Send;
 }
+
 pub trait Rtc {
     fn timestamp(&mut self) -> i64;
-    fn set_timestamp(&mut self, timestamp: i64);
 }
 
 pub enum Key {
