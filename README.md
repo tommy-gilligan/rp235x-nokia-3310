@@ -1,4 +1,4 @@
-# RP235x Nokia 3310 Adapter Board
+# Brique: RP235x Nokia 3310 Adapter Board
 
 This started as a cute "what if?":
 
@@ -9,34 +9,58 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 ![3D render of front of adapter board](./front.jpg)
 ![3D render of back of adapter board](./back.jpg)
 
+## [Simulation](https://tommy-gilligan.github.io/brique/simulation)
+## [API](https://tommy-gilligan.github.io/brique/doc/shared)
+
+## Setting up web environment
+
+## Setting up rp environment
+
+## Setting up board
 ### Ordering Board
+### Disassemble 3310
+### Install Hardware Test Program
+### Reassemble 3310
+### Manual Test
+### Install Custom Software
 
 ### TODO
-#### Sooner
-##### Hardware
-- Come up with better name
-- dress up repo
+#### v0.3
+- app menu
 - create example that plays RTTTL (and writes it to screen)
-- USB-C (USB needs to be replaced anyways, JLCPCB does not stock part in current design)
-- swap positions of USB with debug connectors
-- move debug connections further inside chassis
-- LiPo charging
-- power button (circuit 'down-stream' from charging, jumper for bypass)
-- main speaker connection
-- backlight LEDs (many options but prudent to go with whatever uses least power, is simplest)
-- accomodate headset connection TRRS 2.5 (probably just swap for 3.5): mic shares onboard mic connection.  left channel = big speaker, right channel = buzzer
-- accomodate onboard microphone.  use TRRS connection as 'breakout'
-
-##### Software
+- clock app
+- main branch: logging via USB
+- add backlight to API
 - Snake
-- USB text entry
-- use text_input for inputing secret for TOTP (drives the need for inputting numeric digits easily and RTC)
+- USB text entry (just on branch because USB app API needs some thought nb. there's maybe a need for device to add/remove class depending on app.  is that possible? what does web simulated device look like?)
+
+- power button (digital latch.  can this be triggered by 'any key'?  ie. any keypad press turns the device on.  there's enough GPIO to spare that we should have a dedicated GPIO for any key too)
+- double check power regulation, boot button
+- backlight LEDs (many options but prudent to go with whatever uses least power, is simplest.  use transistor to drive LED directly from battery/power)
+- add back supercap rtc
+- add jlcpcb part numbers, 3d models
+- double check usb footprint
+
+- terse, unfriendly instructions (ie. README)
+- document app API
 
 #### Later
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
     - looks like RP will release such a module (RM2) so go ahead with designing with that in mind
 - detect battery type to refuse NiMH
 - battery gauge
+- mic connection
+- use text_input for inputing secret for TOTP (drives the need for inputting numeric digits easily and RTC)
+- power button used for BOOT/RUN?
+- how should software versions synchronize with hardware versions. what level of compatibility should be supported.
+- institute changelog
+- use 'Issues' instead of README for tracking
+- USB on simulated device
+- optimise GPIO pin mapping.  shorten traces etc.
+- connection plate for 3d printing
+- increase flash capacity? i'd prefer to remove this part altogether by using rp2354 due for release later in the year
+
+#### Much Later
 - flex pcb for keypad?
 - LTE modem?
 - e-ink display?

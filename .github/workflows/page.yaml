@@ -19,7 +19,7 @@ jobs:
         components: rust-docs
         targets: thumbv8m.main-none-eabihf
     - run: cargo install --locked trunk
-    - run: trunk build -M --release --dist ../docs --public-url 'https://tommy-gilligan.github.io/rp235x-nokia-3310'
+    - run: trunk build -M --release --dist ../docs/simulation --public-url 'https://tommy-gilligan.github.io/rp235x-nokia-3310/simulation'
       working-directory: web
     - run: cargo doc
       working-directory: shared
