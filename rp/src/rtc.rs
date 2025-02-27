@@ -22,9 +22,9 @@ impl Clock<'_> {
         )
     }
 
-    fn set_timestamp(&mut self, timestamp: i64) {
-        self.0.set_unix_time(timestamp.try_into().unwrap()).unwrap()
-    }
+    // fn set_timestamp(&mut self, timestamp: i64) {
+    //     self.0.set_unix_time(timestamp.try_into().unwrap()).unwrap()
+    // }
 }
 
 impl Rtc for Clock<'_> {

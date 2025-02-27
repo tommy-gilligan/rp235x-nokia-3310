@@ -3,42 +3,8 @@ use std::rc::Rc;
 
 use embassy_time::Timer;
 use shared::{Key, Keypad};
-use wasm_bindgen::{JsCast, closure::Closure};
 
-struct DomB {
-    was_clicked: bool,
-}
-
-impl DomB {
-    #[allow(clippy::too_many_arguments)]
-    fn new(id: &'static str) -> Rc<RefCell<Self>> {
-        let window = web_sys::window().expect("no global `window` exists");
-        let document = window.document().expect("should have a document on window");
-        let s = Self { was_clicked: false };
-        let r = Rc::new(RefCell::new(s));
-        let g = r.clone();
-
-        let closure = Closure::<dyn FnMut(_)>::new(move |_event: web_sys::MouseEvent| {
-            (*g).borrow_mut().was_clicked = true;
-        });
-
-        document
-            .get_element_by_id(id)
-            .unwrap()
-            .add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref())
-            .unwrap();
-
-        closure.forget();
-
-        r
-    }
-
-    fn check(&mut self) -> bool {
-        let result = self.was_clicked;
-        self.was_clicked = false;
-        result
-    }
-}
+use super::DomB;
 
 pub struct DomKeypad {
     cancel: Rc<RefCell<DomB>>,

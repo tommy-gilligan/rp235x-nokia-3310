@@ -23,12 +23,13 @@ pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 6] = [
     ),
 ];
 
-use defmt::println;
+use core::cell::RefCell;
+
 use defmt_rtt as _;
 use embassy_executor::Spawner;
-use embassy_rp::block::ImageDef;
+use embassy_rp::{block::ImageDef, spi, spi::Spi};
+use embassy_sync::blocking_mutex::{Mutex, raw::NoopRawMutex};
 use panic_probe as _;
-use shared::Application;
 
 mod backlight;
 mod button;
@@ -38,17 +39,11 @@ mod keypad;
 mod rtc;
 mod vibration_motor;
 
-use core::cell::RefCell;
-
-use embassy_rp::{spi, spi::Spi};
-use embassy_sync::blocking_mutex::{Mutex, raw::NoopRawMutex};
-
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    let _button = button::Button::new(p.PIN_28);
+    let mut power = button::Button::new(p.PIN_28);
 
-    let mut beepy = clock::Clock::new();
     let mut vibration_motor = vibration_motor::Motor::new(p.PIN_2);
     let mut buzzer = buzzer::Beeper::new(p.PWM_SLICE2, p.PIN_21);
     let mut clock = rtc::Clock::new(p.I2C1, p.PIN_46, p.PIN_47);
@@ -71,34 +66,40 @@ async fn main(_spawner: Spawner) {
 
     let mut backlight = backlight::Light::new(p.PIN_15);
 
+    let items = ["Clock", "Hardware Test"];
+    let mut menu = shared::menu::Menu::new(&items);
     loop {
-        // decide your time budgets
-        // 'trust' application takes at most 750ms
-        // force pre-emption at 1500ms
-        // how do you progress things inside app that take longer than 750?
-        // special kind of timer?
-        // forced pre-emption should be signalled back to application + print log entry
-        match embassy_time::with_timeout(
-            embassy_time::Duration::from_millis(1000),
-            beepy.run(
+        let i = loop {
+            if let Some(index) = menu.process(&mut keypad, &mut display).await {
+                break index;
+            }
+        };
+        if i == 0 {
+            let clock_app = clock::Clock;
+            shared::run_app(
+                clock_app,
                 &mut vibration_motor,
                 &mut buzzer,
                 &mut display,
                 &mut keypad,
                 &mut clock,
                 &mut backlight,
-                None,
-            ),
-        )
-        .await
-        {
-            Ok(Ok(None)) => {}
-            Err(embassy_time::TimeoutError) => {
-                println!("timed out");
-            }
-            _ => {
-                unimplemented!()
-            }
+                &mut power,
+            )
+            .await
+        } else {
+            let hardware_test = hardware_test::HardwareTest::default();
+            shared::run_app(
+                hardware_test,
+                &mut vibration_motor,
+                &mut buzzer,
+                &mut display,
+                &mut keypad,
+                &mut clock,
+                &mut backlight,
+                &mut power,
+            )
+            .await
         }
     }
 }

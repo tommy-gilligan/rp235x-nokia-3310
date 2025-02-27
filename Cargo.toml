@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rp", "shared", "web", "clock", "hardware_test"]
+members = ["rp", "shared", "web", "clock", "hardware_test", "app_menu"]
 
 [workspace.dependencies]
 # multi-tap = { path = "./multi-tap" }

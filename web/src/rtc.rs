@@ -10,9 +10,9 @@ impl Clock {
         Self { offset: 0 }
     }
 
-    fn set_timestamp(&mut self, timestamp: i64) {
-        self.offset = timestamp - (Date::now() / 1000.0) as i64;
-    }
+    // fn set_timestamp(&mut self, timestamp: i64) {
+    //     self.offset = timestamp - (Date::now() / 1000.0) as i64;
+    // }
 }
 
 impl Rtc for Clock {

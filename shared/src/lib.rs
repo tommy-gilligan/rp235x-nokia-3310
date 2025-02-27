@@ -1,8 +1,11 @@
 #![no_std]
 
+pub mod menu;
+
 use core::{fmt::Debug, future::Future};
 
-use embedded_graphics::{draw_target::DrawTarget, pixelcolor::BinaryColor};
+use embedded_graphics::{Drawable, prelude::Primitive, primitives::PrimitiveStyle};
+use embedded_graphics_core::{draw_target::DrawTarget, pixelcolor::BinaryColor};
 
 pub trait Backlight {
     fn on(&mut self);
@@ -27,8 +30,7 @@ pub enum ButtonEvent {
 }
 
 pub trait PowerButton {
-    fn is_pressed(&self) -> bool;
-    fn event(&mut self) -> impl core::future::Future<Output = ButtonEvent> + core::marker::Send;
+    fn was_pressed(&mut self) -> impl core::future::Future<Output = bool> + core::marker::Send;
 }
 
 pub trait Rtc {
@@ -86,3 +88,51 @@ pub trait Application {
 }
 
 pub enum SystemRequest {}
+
+// decide your time budgets
+// 'trust' application takes at most 750ms
+// force pre-emption at 1500ms
+// how do you progress things inside app that take longer than 750?
+// special kind of timer?
+// forced pre-emption should be signalled back to application + print log entry
+#[allow(clippy::too_many_arguments)]
+pub async fn run_app<D: DrawTarget<Color = BinaryColor>>(
+    mut app: impl Application,
+    vibration_motor: &mut impl VibrationMotor,
+    buzzer: &mut impl Buzzer,
+    display: &mut D,
+    keypad: &mut impl Keypad,
+    rtc: &mut impl Rtc,
+    light: &mut impl Backlight,
+    power: &mut impl PowerButton,
+) where
+    <D as DrawTarget>::Error: Debug,
+{
+    let fill = PrimitiveStyle::with_fill(BinaryColor::On);
+    display
+        .bounding_box()
+        .into_styled(fill)
+        .draw(display)
+        .unwrap();
+
+    loop {
+        match embassy_time::with_timeout(
+            embassy_time::Duration::from_millis(1000),
+            app.run(vibration_motor, buzzer, display, keypad, rtc, light, None),
+        )
+        .await
+        {
+            Ok(Ok(None)) => {}
+            Err(embassy_time::TimeoutError) => {
+                // println!("timed out");
+            }
+            _ => {
+                unimplemented!()
+            }
+        }
+
+        if power.was_pressed().await {
+            return;
+        }
+    }
+}

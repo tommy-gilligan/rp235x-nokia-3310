@@ -1,59 +1,43 @@
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyle},
+    mono_font::{MonoTextStyle, ascii::FONT_6X10},
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{PrimitiveStyle, Rectangle},
     text::{Alignment, Text},
 };
 
-use crate::keypad::Keypad;
+use super::Keypad;
 
-pub struct Menu<'a, KEYPAD, DRAW_TARGET>
-where
-    KEYPAD: Keypad,
-    DRAW_TARGET: DrawTarget<Color = BinaryColor>,
-{
-    keypad: KEYPAD,
-    draw_target: DRAW_TARGET,
+pub struct Menu<'a> {
     items: &'a [&'a str],
     index: usize,
 }
 
-const MENU_ITEMS: [&str; 3] = ["Text Input", "Music", "Snake"];
-
-impl<'a, KEYPAD, DRAW_TARGET> Menu<'a, KEYPAD, DRAW_TARGET>
-where
-    KEYPAD: Keypad,
-    DRAW_TARGET: DrawTarget<Color = BinaryColor>,
-{
-    pub fn new(keypad: KEYPAD, draw_target: DRAW_TARGET) -> Self {
-        let mut s = Self {
-            keypad,
-            draw_target,
-            items: &MENU_ITEMS,
-            index: 0,
-        };
-        s.draw();
-        s
+impl<'a> Menu<'a> {
+    pub fn new(items: &'a [&'a str]) -> Self {
+        Self { items, index: 0 }
     }
 
-    fn draw(&mut self) {
-        let bounding_box = self.draw_target.bounding_box();
+    fn draw<D>(&mut self, draw_target: &mut D)
+    where
+        D: DrawTarget<Color = BinaryColor>,
+    {
+        let bounding_box = draw_target.bounding_box();
         let top_left = bounding_box.top_left;
 
         let _ = bounding_box
             .into_styled(PrimitiveStyle::with_fill(BinaryColor::On))
-            .draw(&mut self.draw_target);
+            .draw(draw_target);
 
         for (index, item) in self.items.iter().enumerate() {
             let y_offset: i32 = (index * 10).try_into().unwrap();
             if self.index == index {
                 let _ = Rectangle::new(
                     top_left + Point::new(0, y_offset + 2),
-                    Size::new(self.draw_target.bounding_box().size.width, 11),
+                    Size::new(draw_target.bounding_box().size.width, 11),
                 )
                 .into_styled(PrimitiveStyle::with_fill(BinaryColor::Off))
-                .draw(&mut self.draw_target);
+                .draw(draw_target);
 
                 let _ = Text::with_alignment(
                     item,
@@ -61,7 +45,7 @@ where
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::On),
                     Alignment::Left,
                 )
-                .draw(&mut self.draw_target);
+                .draw(draw_target);
             } else {
                 let _ = Text::with_alignment(
                     item,
@@ -69,7 +53,7 @@ where
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::Off),
                     Alignment::Left,
                 )
-                .draw(&mut self.draw_target);
+                .draw(draw_target);
             }
         }
     }
@@ -86,17 +70,28 @@ where
         }
     }
 
-    pub async fn process(&mut self) {
-        match self.keypad.event().await {
-            crate::keypad::Event::Down(crate::keypad::Button::Down) => {
+    pub async fn process<KEYPAD, D>(
+        &mut self,
+        keypad: &mut KEYPAD,
+        draw_target: &mut D,
+    ) -> Option<usize>
+    where
+        KEYPAD: Keypad,
+        D: DrawTarget<Color = BinaryColor>,
+    {
+        self.draw(draw_target);
+        match keypad.event().await {
+            super::KeyEvent::Down(super::Key::Down) => {
                 self.down();
-                self.draw();
+                None
             }
-            crate::keypad::Event::Down(crate::keypad::Button::Up) => {
+            super::KeyEvent::Down(super::Key::Up) => {
                 self.up();
-                self.draw();
+                None
             }
-            _ => {}
+
+            super::KeyEvent::Down(super::Key::Select) => Some(self.index),
+            _ => None,
         }
     }
 }

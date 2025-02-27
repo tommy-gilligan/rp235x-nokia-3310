@@ -3,11 +3,11 @@ mod backlight;
 mod buzzer;
 mod display;
 mod keypad;
+mod power;
 mod rtc;
 mod vibration_motor;
 
 use embassy_executor::Spawner;
-use shared::Application;
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -21,7 +21,6 @@ async fn main(_spawner: Spawner) {
     let svg = document.get_element_by_id("nokia").unwrap();
     let mut buzzer = buzzer::Buzzer::new(svg);
     let mut rtc = rtc::Clock::new();
-    let mut beepy = hardware_test::HardwareTest::default();
 
     let svg = document.get_element_by_id("display").unwrap();
     let mut display = display::Display::new(svg);
@@ -34,34 +33,82 @@ async fn main(_spawner: Spawner) {
         "eight", "nine", "asterisk", "zero", "hash",
     );
 
+    let mut power = power::DomPower::new("power");
+
+    let items = ["Clock", "Hardware Test"];
+    let mut menu = shared::menu::Menu::new(&items);
     loop {
-        // decide your time budgets
-        // 'trust' application takes at most 750ms
-        // force pre-emption at 1500ms
-        // how do you progress things inside app that take longer than 750?
-        // special kind of timer?
-        // forced pre-emption should be signalled back to application + print log entry
-        match embassy_time::with_timeout(
-            embassy_time::Duration::from_millis(1000),
-            beepy.run(
+        let i = loop {
+            if let Some(index) = menu.process(&mut keypad, &mut display).await {
+                break index;
+            }
+        };
+        if i == 0 {
+            let clock = clock::Clock;
+            shared::run_app(
+                clock,
                 &mut vibration_motor,
                 &mut buzzer,
                 &mut display,
                 &mut keypad,
                 &mut rtc,
                 &mut light,
-                None,
-            ),
-        )
-        .await
-        {
-            Ok(Ok(None)) => {}
-            Err(embassy_time::TimeoutError) => {
-                println!("timed out");
-            }
-            _ => {
-                unimplemented!()
-            }
+                &mut power,
+            )
+            .await
+        } else {
+            let hardware_test = hardware_test::HardwareTest::default();
+            shared::run_app(
+                hardware_test,
+                &mut vibration_motor,
+                &mut buzzer,
+                &mut display,
+                &mut keypad,
+                &mut rtc,
+                &mut light,
+                &mut power,
+            )
+            .await
         }
+    }
+}
+
+use core::cell::RefCell;
+use std::rc::Rc;
+
+use wasm_bindgen::{JsCast, closure::Closure};
+
+struct DomB {
+    was_clicked: bool,
+}
+
+impl DomB {
+    #[allow(clippy::too_many_arguments)]
+    fn new(id: &'static str) -> Rc<RefCell<Self>> {
+        let window = web_sys::window().expect("no global `window` exists");
+        let document = window.document().expect("should have a document on window");
+        let s = Self { was_clicked: false };
+        let r = Rc::new(RefCell::new(s));
+        let g = r.clone();
+
+        let closure = Closure::<dyn FnMut(_)>::new(move |_event: web_sys::MouseEvent| {
+            (*g).borrow_mut().was_clicked = true;
+        });
+
+        document
+            .get_element_by_id(id)
+            .unwrap()
+            .add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref())
+            .unwrap();
+
+        closure.forget();
+
+        r
+    }
+
+    fn check(&mut self) -> bool {
+        let result = self.was_clicked;
+        self.was_clicked = false;
+        result
     }
 }

@@ -1,9 +1,9 @@
 [package]
-name = "shared"
+name = "app-menu"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 embassy-time = { workspace = true }
 embedded-graphics = "0.8"
-embedded-graphics-core = "0.4.0"
+shared = { path = "../shared" }

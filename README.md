@@ -27,7 +27,6 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 ### TODO
 #### v0.3
 - main branch: logging via USB
-- app menu
 - create example that plays RTTTL (and writes it to screen)
 - Snake
 - USB text entry (just on branch because USB app API needs some thought nb. there's maybe a need for device to add/remove class depending on app.  is that possible? what does web simulated device look like?)
