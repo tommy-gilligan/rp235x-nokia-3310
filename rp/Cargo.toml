@@ -36,9 +36,11 @@ embassy-time = { workspace = true, features = ["defmt", "defmt-timestamp-uptime"
 chrono = { version = "0.4", default-features = false }
 heapless = "0.8"
 static_cell = "2.1.0"
-shared = { path = "../shared", features = [ "chrono" ] }
+shared = { path = "../shared" }
 unofficial-piicodev = { git = "https://github.com/tommy-gilligan/piicodev-rs.git" }
 critical-section = "*"
+clock = { path = "../clock" }
+hardware-test = { path = "../hardware_test" }
 
 # [lints.clippy]
 # alloc_instead_of_core = "deny"

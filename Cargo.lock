@@ -293,6 +293,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "clock"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "embassy-time",
+ "embedded-graphics",
+ "heapless 0.8.0",
+ "shared",
+]
+
+[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -809,11 +820,13 @@ dependencies = [
 name = "embassy-wasm-example"
 version = "0.1.0"
 dependencies = [
+ "clock",
  "embassy-executor",
  "embassy-sync",
  "embassy-time",
  "embedded-graphics",
  "embedded-graphics-web-simulator",
+ "hardware-test",
  "js-sys",
  "log",
  "shared",
@@ -1279,6 +1292,15 @@ checksum = "6dd08c532ae367adf81c312a4580bc67f1d0fe8bc9c460520283f4c0ff277888"
 dependencies = [
  "cfg-if",
  "crunchy",
+]
+
+[[package]]
+name = "hardware-test"
+version = "0.1.0"
+dependencies = [
+ "embassy-time",
+ "embedded-graphics",
+ "shared",
 ]
 
 [[package]]
@@ -2225,6 +2247,7 @@ name = "rp"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "clock",
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
@@ -2245,6 +2268,7 @@ dependencies = [
  "embedded-hal-async",
  "fixed",
  "fixed-macro",
+ "hardware-test",
  "heapless 0.8.0",
  "panic-probe",
  "pcd8544",
@@ -2481,7 +2505,6 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "embassy-time",
  "embedded-graphics",
 ]

@@ -28,7 +28,6 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 #### v0.3
 - app menu
 - create example that plays RTTTL (and writes it to screen)
-- clock app
 - main branch: logging via USB
 - add backlight to API
 - Snake
@@ -40,6 +39,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - add back supercap rtc
 - add jlcpcb part numbers, 3d models
 - double check usb footprint
+- pass more KiCAD checks in CI
 
 - terse, unfriendly instructions (ie. README)
 - document app API
@@ -59,6 +59,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - optimise GPIO pin mapping.  shorten traces etc.
 - connection plate for 3d printing
 - increase flash capacity? i'd prefer to remove this part altogether by using rp2354 due for release later in the year
+- bring more rigour to 'scheduler'
 
 #### Much Later
 - flex pcb for keypad?

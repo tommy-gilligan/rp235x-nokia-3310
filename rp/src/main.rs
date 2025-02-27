@@ -32,9 +32,9 @@ use shared::Application;
 
 mod button;
 mod buzzer;
-mod clock;
 mod display;
 mod keypad;
+mod rtc;
 mod vibration_motor;
 
 use core::cell::RefCell;
@@ -47,10 +47,10 @@ async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
     let _button = button::Button::new(p.PIN_28);
 
-    let mut beepy = shared::Beepy::new(10);
+    let mut beepy = clock::Clock::new();
     let mut vibration_motor = vibration_motor::Motor::new(p.PIN_2);
     let mut buzzer = buzzer::Beeper::new(p.PWM_SLICE2, p.PIN_21);
-    let mut clock = clock::Clock::new(p.I2C1, p.PIN_46, p.PIN_47);
+    let mut clock = rtc::Clock::new(p.I2C1, p.PIN_46, p.PIN_47);
 
     let mut display_config = spi::Config::default();
     display_config.frequency = 4_000_000;
