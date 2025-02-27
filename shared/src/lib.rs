@@ -67,6 +67,7 @@ pub trait Application {
     // should record:
     // how long this takes
     // how long between calls
+    #[allow(clippy::too_many_arguments)]
     fn run<D: DrawTarget<Color = BinaryColor>>(
         &mut self,
         vibration_motor: &mut impl VibrationMotor,

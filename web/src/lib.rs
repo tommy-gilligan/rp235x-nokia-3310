@@ -1,10 +1,10 @@
 #![allow(unexpected_cfgs)]
+mod backlight;
 mod buzzer;
 mod display;
 mod keypad;
 mod rtc;
 mod vibration_motor;
-mod backlight;
 
 use embassy_executor::Spawner;
 use shared::Application;

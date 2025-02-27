@@ -1,8 +1,8 @@
-use shared::Backlight;
 use embassy_rp::{
     gpio::{Level, Output},
     peripherals::PIN_15,
 };
+use shared::Backlight;
 
 pub struct Light<'a>(Output<'a>);
 

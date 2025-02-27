@@ -30,13 +30,13 @@ use embassy_rp::block::ImageDef;
 use panic_probe as _;
 use shared::Application;
 
+mod backlight;
 mod button;
 mod buzzer;
 mod display;
 mod keypad;
 mod rtc;
 mod vibration_motor;
-mod backlight;
 
 use core::cell::RefCell;
 
