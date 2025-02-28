@@ -2,6 +2,7 @@
 
 use core::fmt::Debug;
 
+use defmt::*;
 use embedded_graphics::{
     draw_target::DrawTarget,
     pixelcolor::BinaryColor,
@@ -33,8 +34,8 @@ impl Application for HardwareTest {
         keypad: &mut impl shared::Keypad,
         _rtc: &mut impl shared::Rtc,
         backlight: &mut impl shared::Backlight,
-        _system_response: Option<Result<shared::SystemRequest, ()>>,
-    ) -> Result<Option<shared::SystemRequest>, ()>
+        _system_response: Option<[u8; 64]>,
+    ) -> Option<shared::UsbTx>
     where
         <D as DrawTarget>::Error: Debug,
     {
@@ -54,39 +55,65 @@ impl Application for HardwareTest {
 
         match keypad.event().await {
             KeyEvent::Down(Key::Down) => {
+                println!("Down");
                 self.0 -= 1;
             }
             KeyEvent::Down(Key::Up) => {
+                println!("Up");
                 self.0 += 1;
             }
             KeyEvent::Down(Key::One) => {
+                println!("One");
                 buzzer.unmute();
             }
             KeyEvent::Down(Key::Two) => {
+                println!("Two");
                 buzzer.mute();
             }
             KeyEvent::Down(Key::Four) => {
+                println!("Four");
                 buzzer.set_frequency(440);
             }
             KeyEvent::Down(Key::Five) => {
+                println!("Five");
                 buzzer.set_frequency(660);
             }
             KeyEvent::Down(Key::Six) => {
+                println!("Six");
                 buzzer.set_frequency(880);
             }
             KeyEvent::Down(Key::Eight) => {
+                println!("Eight");
                 vibration_motor.start();
             }
             KeyEvent::Down(Key::Seven) => {
+                println!("Seven");
                 vibration_motor.stop();
             }
             KeyEvent::Down(Key::Nine) => {
+                println!("Nine");
                 backlight.on();
             }
             KeyEvent::Down(Key::Three) => {
+                println!("Three");
                 backlight.off();
             }
-            _ => {}
+            KeyEvent::Up(_) => {}
+            KeyEvent::Down(Key::Select) => {
+                println!("Select");
+            }
+            KeyEvent::Down(Key::Cancel) => {
+                println!("Cancel");
+            }
+            KeyEvent::Down(Key::Asterisk) => {
+                println!("*");
+            }
+            KeyEvent::Down(Key::Zero) => {
+                println!("0");
+            }
+            KeyEvent::Down(Key::Hash) => {
+                println!("#");
+            }
         }
 
         Triangle::new(
@@ -103,6 +130,6 @@ impl Application for HardwareTest {
             .draw(display)
             .unwrap();
 
-        Ok(None)
+        None
     }
 }

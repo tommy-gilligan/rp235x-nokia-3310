@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rp", "shared", "web", "clock", "hardware_test", "app_menu"]
+members = ["rp", "shared", "web", "clock", "hardware_test", "keyboard"]
 
 [workspace.dependencies]
 # multi-tap = { path = "./multi-tap" }
@@ -13,7 +13,7 @@ embassy-executor = { git = "https://github.com/embassy-rs/embassy.git", features
 embassy-futures = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
 embassy-sync = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
 embassy-time = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
-embassy-usb = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt"] }
+embassy-usb = { git = "https://github.com/embassy-rs/embassy.git", version = "*", features = ["defmt", "max-interface-count-6"] }
 embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy.git", version = "*" }
 
 embedded-graphics = "*"

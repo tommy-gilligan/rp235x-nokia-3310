@@ -26,10 +26,9 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 
 ### TODO
 #### v0.3
-- main branch: logging via USB
 - create example that plays RTTTL (and writes it to screen)
 - Snake
-- USB text entry (just on branch because USB app API needs some thought nb. there's maybe a need for device to add/remove class depending on app.  is that possible? what does web simulated device look like?)
+- USB text entry
 
 - power button (digital latch.  can this be triggered by 'any key'?  ie. any keypad press turns the device on.  there's enough GPIO to spare that we should have a dedicated GPIO for any key too)
 - double check power regulation, boot button
@@ -43,6 +42,7 @@ Because the board would need to fit into the chassis of a Nokia 3310 and because
 - document app API
 
 #### Later
+- make all system work live on primary core.  give apps dedicated secondary core.
 - optional pico-w for wifi/bluetooth (using a module avoids need for recertification?)
     - looks like RP will release such a module (RM2) so go ahead with designing with that in mind
 - detect battery type to refuse NiMH

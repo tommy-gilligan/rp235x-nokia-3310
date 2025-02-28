@@ -54,8 +54,9 @@ async fn main(_spawner: Spawner) {
                 &mut rtc,
                 &mut light,
                 &mut power,
+                None,
             )
-            .await
+            .await;
         } else {
             let hardware_test = hardware_test::HardwareTest::default();
             shared::run_app(
@@ -67,8 +68,9 @@ async fn main(_spawner: Spawner) {
                 &mut rtc,
                 &mut light,
                 &mut power,
+                None,
             )
-            .await
+            .await;
         }
     }
 }

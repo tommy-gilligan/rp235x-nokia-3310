@@ -25,11 +25,23 @@ pub static PICOTOOL_ENTRIES: [embassy_rp::binary_info::EntryAddr; 6] = [
 
 use core::cell::RefCell;
 
+use assign_resources::assign_resources;
+use defmt::unwrap;
 use defmt_rtt as _;
-use embassy_executor::Spawner;
-use embassy_rp::{block::ImageDef, spi, spi::Spi};
+use embassy_executor::{Executor, Spawner};
+use embassy_rp::{
+    bind_interrupts,
+    block::ImageDef,
+    multicore::{Stack, spawn_core1},
+    peripherals,
+    peripherals::USB,
+    spi,
+    spi::Spi,
+    usb::InterruptHandler,
+};
 use embassy_sync::blocking_mutex::{Mutex, raw::NoopRawMutex};
 use panic_probe as _;
+use static_cell::StaticCell;
 
 mod backlight;
 mod button;
@@ -37,11 +49,35 @@ mod buzzer;
 mod display;
 mod keypad;
 mod rtc;
+mod usb;
 mod vibration_motor;
+
+assign_resources! {
+    usbs: Usbs{
+        usb: USB,
+    }
+}
+
+bind_interrupts!(struct Irqs {
+    USBCTRL_IRQ => InterruptHandler<USB>;
+});
+
+static mut CORE1_STACK: Stack<4096> = Stack::new();
+static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
+    let r = split_resources!(p);
+    spawn_core1(
+        p.CORE1,
+        unsafe { &mut *core::ptr::addr_of_mut!(CORE1_STACK) },
+        move || {
+            let executor1 = EXECUTOR1.init(Executor::new());
+            executor1.run(|spawner| unwrap!(spawner.spawn(usb::big_usb_task(spawner, r.usbs))));
+        },
+    );
+
     let mut power = button::Button::new(p.PIN_28);
 
     let mut vibration_motor = vibration_motor::Motor::new(p.PIN_2);
@@ -66,8 +102,9 @@ async fn main(_spawner: Spawner) {
 
     let mut backlight = backlight::Light::new(p.PIN_15);
 
-    let items = ["Clock", "Hardware Test"];
+    let items = ["Clock", "Hardware Test", "Keyboard"];
     let mut menu = shared::menu::Menu::new(&items);
+
     loop {
         let i = loop {
             if let Some(index) = menu.process(&mut keypad, &mut display).await {
@@ -76,7 +113,7 @@ async fn main(_spawner: Spawner) {
         };
         if i == 0 {
             let clock_app = clock::Clock;
-            shared::run_app(
+            match shared::run_app(
                 clock_app,
                 &mut vibration_motor,
                 &mut buzzer,
@@ -85,11 +122,36 @@ async fn main(_spawner: Spawner) {
                 &mut clock,
                 &mut backlight,
                 &mut power,
+                usb::RX_CHANNEL.try_receive().ok(),
             )
             .await
+            {
+                Some(shared::UsbTx::HidChar(c)) => usb::HID_TX_CHANNEL.send(c).await,
+                Some(shared::UsbTx::CdcBuffer(b)) => usb::CDC_TX_CHANNEL.send(b).await,
+                None => {}
+            }
+        } else if i == 2 {
+            let keyboard = keyboard::Keyboard;
+            match shared::run_app(
+                keyboard,
+                &mut vibration_motor,
+                &mut buzzer,
+                &mut display,
+                &mut keypad,
+                &mut clock,
+                &mut backlight,
+                &mut power,
+                usb::RX_CHANNEL.try_receive().ok(),
+            )
+            .await
+            {
+                Some(shared::UsbTx::HidChar(c)) => usb::HID_TX_CHANNEL.send(c).await,
+                Some(shared::UsbTx::CdcBuffer(b)) => usb::CDC_TX_CHANNEL.send(b).await,
+                None => {}
+            }
         } else {
             let hardware_test = hardware_test::HardwareTest::default();
-            shared::run_app(
+            match shared::run_app(
                 hardware_test,
                 &mut vibration_motor,
                 &mut buzzer,
@@ -98,8 +160,14 @@ async fn main(_spawner: Spawner) {
                 &mut clock,
                 &mut backlight,
                 &mut power,
+                usb::RX_CHANNEL.try_receive().ok(),
             )
             .await
+            {
+                Some(shared::UsbTx::HidChar(c)) => usb::HID_TX_CHANNEL.send(c).await,
+                Some(shared::UsbTx::CdcBuffer(b)) => usb::CDC_TX_CHANNEL.send(b).await,
+                None => {}
+            }
         }
     }
 }

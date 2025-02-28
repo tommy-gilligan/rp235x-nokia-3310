@@ -30,9 +30,13 @@ impl Beeper<'_> {
 }
 
 impl Buzzer for Beeper<'_> {
-    fn mute(&mut self) {}
+    fn mute(&mut self) {
+        self.0.set_duty_cycle_percent(0).unwrap();
+    }
 
-    fn unmute(&mut self) {}
+    fn unmute(&mut self) {
+        self.0.set_duty_cycle_percent(90).unwrap();
+    }
 
     fn set_volume(&mut self, _volume: u8) {
         // self.0.set_duty_cycle_percent(volume).unwrap();

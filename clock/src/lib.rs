@@ -53,8 +53,8 @@ impl Application for Clock {
         _keypad: &mut impl shared::Keypad,
         rtc: &mut impl shared::Rtc,
         _backlight: &mut impl shared::Backlight,
-        _system_response: Option<Result<shared::SystemRequest, ()>>,
-    ) -> Result<Option<shared::SystemRequest>, ()>
+        _system_response: Option<[u8; 64]>,
+    ) -> Option<shared::UsbTx>
     where
         <D as DrawTarget>::Error: Debug,
     {
@@ -88,6 +88,6 @@ impl Application for Clock {
         .unwrap();
         embassy_time::Timer::after_millis(10).await;
 
-        Ok(None)
+        None
     }
 }

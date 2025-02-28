@@ -78,16 +78,19 @@ pub trait Application {
         keypad: &mut impl Keypad,
         rtc: &mut impl Rtc,
         backlight: &mut impl Backlight,
-        // NB. placeholder () here are for very different purposes
-        // system_response could be a collection of system events that have happened since last run
-        // call
-        system_response: Option<Result<SystemRequest, ()>>,
-    ) -> impl Future<Output = Result<Option<SystemRequest>, ()>>
+        system_response: Option<[u8; 64]>,
+    ) -> impl Future<Output = Option<UsbTx>>
     where
         <D as DrawTarget>::Error: Debug;
 }
 
 pub enum SystemRequest {}
+
+pub type UsbRx = [u8; 64];
+pub enum UsbTx {
+    CdcBuffer([u8; 64]),
+    HidChar(char),
+}
 
 // decide your time budgets
 // 'trust' application takes at most 750ms
@@ -105,7 +108,11 @@ pub async fn run_app<D: DrawTarget<Color = BinaryColor>>(
     rtc: &mut impl Rtc,
     light: &mut impl Backlight,
     power: &mut impl PowerButton,
-) where
+    // just usb rx for now
+    system_response: Option<[u8; 64]>,
+    // just usb tx for now
+) -> Option<UsbTx>
+where
     <D as DrawTarget>::Error: Debug,
 {
     let fill = PrimitiveStyle::with_fill(BinaryColor::On);
@@ -114,25 +121,44 @@ pub async fn run_app<D: DrawTarget<Color = BinaryColor>>(
         .into_styled(fill)
         .draw(display)
         .unwrap();
+    buzzer.mute();
+    vibration_motor.stop();
 
     loop {
         match embassy_time::with_timeout(
             embassy_time::Duration::from_millis(1000),
-            app.run(vibration_motor, buzzer, display, keypad, rtc, light, None),
+            app.run(
+                vibration_motor,
+                buzzer,
+                display,
+                keypad,
+                rtc,
+                light,
+                system_response,
+            ),
         )
         .await
         {
-            Ok(Ok(None)) => {}
-            Err(embassy_time::TimeoutError) => {
-                // println!("timed out");
+            Ok(None) => {}
+            Ok(e) => {
+                return e;
             }
-            _ => {
-                unimplemented!()
+            Err(embassy_time::TimeoutError) => {
+                log::info!("timed out");
             }
         }
 
         if power.was_pressed().await {
-            return;
+            let fill = PrimitiveStyle::with_fill(BinaryColor::On);
+            display
+                .bounding_box()
+                .into_styled(fill)
+                .draw(display)
+                .unwrap();
+            buzzer.mute();
+            vibration_motor.stop();
+
+            return None;
         }
     }
 }

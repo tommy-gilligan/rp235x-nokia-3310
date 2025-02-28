@@ -41,6 +41,9 @@ unofficial-piicodev = { git = "https://github.com/tommy-gilligan/piicodev-rs.git
 critical-section = "*"
 clock = { path = "../clock" }
 hardware-test = { path = "../hardware_test" }
+keyboard = { path = "../keyboard" }
+log = "0.4"
+assign-resources = { git = "https://github.com/adamgreig/assign-resources", rev = "94ad10e2729afdf0fd5a77cd12e68409a982f58a" }
 
 # [lints.clippy]
 # alloc_instead_of_core = "deny"

@@ -41,7 +41,7 @@ impl<'a> Menu<'a> {
 
                 let _ = Text::with_alignment(
                     item,
-                    top_left + Point::new(0, 10) + Point::new(0, y_offset),
+                    top_left + Point::new(2, 10) + Point::new(0, y_offset),
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::On),
                     Alignment::Left,
                 )
@@ -49,7 +49,7 @@ impl<'a> Menu<'a> {
             } else {
                 let _ = Text::with_alignment(
                     item,
-                    top_left + Point::new(0, 10) + Point::new(0, y_offset),
+                    top_left + Point::new(2, 10) + Point::new(0, y_offset),
                     MonoTextStyle::new(&FONT_6X10, BinaryColor::Off),
                     Alignment::Left,
                 )

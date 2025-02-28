@@ -45,15 +45,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b964d184e89d9b6b67dd2715bc8e74cf3107fb2b529990c90cf517326150bf4"
 
 [[package]]
-name = "app-menu"
-version = "0.1.0"
-dependencies = [
- "embassy-time",
- "embedded-graphics",
- "shared",
-]
-
-[[package]]
 name = "array-init"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -73,6 +64,11 @@ checksum = "ef1e3e699d84ab1b0911a1010c5c106aa34ae89aeac103be5ce0c3859db1e891"
 dependencies = [
  "term",
 ]
+
+[[package]]
+name = "assign-resources"
+version = "0.4.0"
+source = "git+https://github.com/adamgreig/assign-resources?rev=94ad10e2729afdf0fd5a77cd12e68409a982f58a#94ad10e2729afdf0fd5a77cd12e68409a982f58a"
 
 [[package]]
 name = "atomic-polyfill"
@@ -829,7 +825,6 @@ dependencies = [
 name = "embassy-wasm-example"
 version = "0.1.0"
 dependencies = [
- "app-menu",
  "clock",
  "embassy-executor",
  "embassy-sync",
@@ -1308,6 +1303,7 @@ dependencies = [
 name = "hardware-test"
 version = "0.1.0"
 dependencies = [
+ "defmt",
  "embassy-time",
  "embedded-graphics",
  "shared",
@@ -1514,6 +1510,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ecc2af9a1119c51f12a14607e783cb977bde58bc069ff0c3da1095e635d70654"
 dependencies = [
  "cpufeatures",
+]
+
+[[package]]
+name = "keyboard"
+version = "0.1.0"
+dependencies = [
+ "embassy-time",
+ "embedded-graphics",
+ "shared",
 ]
 
 [[package]]
@@ -2256,6 +2261,7 @@ dependencies = [
 name = "rp"
 version = "0.1.0"
 dependencies = [
+ "assign-resources",
  "chrono",
  "clock",
  "cortex-m",
@@ -2280,6 +2286,8 @@ dependencies = [
  "fixed-macro",
  "hardware-test",
  "heapless 0.8.0",
+ "keyboard",
+ "log",
  "panic-probe",
  "pcd8544",
  "shared",
@@ -2518,6 +2526,7 @@ dependencies = [
  "embassy-time",
  "embedded-graphics",
  "embedded-graphics-core",
+ "log",
 ]
 
 [[package]]
